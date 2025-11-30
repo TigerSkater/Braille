@@ -201,224 +201,283 @@
       background: var(--accent);
     }
 
-    /* ================= TOUCH BRAILLE KEYBOARD ================= */
+    /* =================== ADDED: OVERRIDE FOR NO LETTER SPACING =================== */
+    .braille-cell {
+      margin-right: 0; /* no extra space between braille characters */
+    }
 
+    /* =================== ADDED: TOUCH LETTER KEYBOARD STYLES =================== */
     .braille-keyboard {
       margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.5rem;
       user-select: none;
       touch-action: manipulation;
     }
 
-    .braille-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-    }
-
-    .braille-keyboard button {
-      height: 60px;
+    .braille-key {
+      height: 48px;
       border-radius: 12px;
+      border: 1px solid rgba(45, 212, 191, 0.45);
       background: rgba(45, 212, 191, 0.18);
-      border: 1px solid rgba(45,212,191,0.4);
-      outline: none;
+      color: var(--text);
+      font-weight: 600;
     }
 
-    .braille-keyboard button:active {
-      background: rgba(45,212,191,0.45);
-      transform: scale(0.98);
+    .braille-key:active {
+      background: rgba(45, 212, 191, 0.45);
+      transform: scale(0.97);
     }
 
-    .braille-space {
-      margin-top: 0.4rem;
-      height: 50px;
-      background: rgba(59,130,246,0.2);
-      border: 1px solid rgba(59,130,246,0.4);
-    }
-
-    /* keyboard is invisible to screen readers */
-    .braille-keyboard,
-    .braille-keyboard * {
-      pointer-events: auto;
+    .braille-key.space-key {
+      grid-column: 1 / -1;
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.5);
     }
   </style>
 </head>
-
 <body>
 <main>
-<header>
-<h1>Accessible Braille Translator <span class="logo-dot">⠃⠗⠇</span></h1>
-<p class="tagline">
-Type text OR use the tactile Braille keyboard below. Screen readers only announce Braille output.
-</p>
-</header>
+  <header>
+    <h1>
+      Accessible Braille Translator
+      <span class="logo-dot">⠃⠗⠇</span>
+    </h1>
+    <p class="tagline">
+      Type text, see Braille dots visually, and let screen readers “feel” each cell with spoken labels.
+    </p>
+  </header>
 
-<section class="grid">
+  <section class="grid" aria-label="Braille translator">
+    <!-- INPUT -->
+    <section class="card" aria-label="Text input">
+      <label for="sourceText">Text to translate</label>
+      <p class="hint">
+        Supports basic Grade&nbsp;1 English (letters a–z, space, . , ? !). Case is announced to screen readers.
+      </p>
+      <textarea
+        id="sourceText"
+        name="sourceText"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Type something like: Hello world!"
+      ></textarea>
+      <p class="footer-note">
+        <span class="badge">
+          <span class="badge-dot"></span>
+          Screen-reader friendly: each Braille cell has an ARIA label like “a, dots 1”.
+        </span>
+      </p>
+    </section>
 
-<!-- INPUT -->
-<section class="card">
-<label for="sourceText">Text to translate</label>
-<p class="hint">
-Supports basic Grade 1 English (letters a–z, space, . , ? !)
-</p>
-<textarea id="sourceText"
-autocomplete="off"
-spellcheck="false"
-placeholder="Type something like: Hello world!">
-</textarea>
+    <!-- OUTPUT -->
+    <section class="card" aria-label="Braille output">
+      <div class="output-header">
+        <div class="output-title">Braille output</div>
+        <div class="output-subtitle">
+          Screen readers will read each cell by name and dot pattern.
+        </div>
+      </div>
 
-<p class="footer-note">
-<span class="badge">
-<span class="badge-dot"></span>
-Each braille cell has ARIA dot labels
-</span>
-</p>
+      <!-- This live region updates as the user types -->
+      <div id="brailleOutput"
+           class="output-box"
+           aria-live="polite"
+           aria-label="Braille translation output">
+        <p class="hint" style="margin:0;">
+          Your Braille translation will appear here as you type.
+        </p>
+      </div>
 
-</section>
+      <!-- Optional plain-text representation for copying, hidden visually -->
+      <div id="braillePlainText" class="sr-only"
+           aria-hidden="false"
+           aria-label="Plain text representation of the Braille dots"></div>
+    </section>
+  </section>
 
+  <!-- ============ ADDED: TOUCH-ONLY LETTER KEYBOARD (A–Z, . ! ?, SPACE) ============ -->
+  <section class="card" aria-hidden="true" style="margin-top:1rem;">
+    <p class="hint" style="margin-bottom:0.6rem;">
+      Touch the keys below to insert letters. This keyboard is hidden from screen readers.
+    </p>
+    <div id="brailleKeyboard" class="braille-keyboard"></div>
+  </section>
 
-<!-- OUTPUT -->
-<section class="card">
-
-<div class="output-header">
-<div class="output-title">Braille Output</div>
-<div class="output-subtitle">
-Screen readers speak each cell
-</div>
-</div>
-
-<div id="brailleOutput"
-class="output-box"
-aria-live="polite"
-aria-label="Braille output">
-</div>
-
-<div id="braillePlainText"
-class="sr-only"
-aria-hidden="false">
-</div>
-
-</section>
-
-</section>
-
-
-<!-- ========== TOUCH BRAILLE KEYBOARD ========= -->
-<section class="braille-keyboard" aria-hidden="true">
-
-<div class="braille-row">
-<button data-dot="1"></button>
-<button data-dot="2"></button>
-<button data-dot="3"></button>
-</div>
-
-<div class="braille-row">
-<button data-dot="4"></button>
-<button data-dot="5"></button>
-<button data-dot="6"></button>
-</div>
-
-<button class="braille-space">Space</button>
-
-</section>
-
-
-<p class="footer-note">
-Tap dots → press space to commit each Braille letter.
-</p>
-
+  <p class="footer-note">
+    Note: This is a simplified visual and auditory helper for Braille patterns, not a full production-grade Braille translation engine.
+  </p>
 </main>
 
-
 <script>
-  // ==== BRAILLE MAP ====
-
+  // Basic Grade 1 Braille map (letters + some punctuation)
   const brailleMap = {
-    a:"⠁", b:"⠃", c:"⠉", d:"⠙", e:"⠑", f:"⠋", g:"⠛", h:"⠓",
-    i:"⠊", j:"⠚", k:"⠅", l:"⠇", m:"⠍", n:"⠝", o:"⠕",
-    p:"⠏", q:"⠟", r:"⠗", s:"⠎", t:"⠞",
-    u:"⠥", v:"⠧", w:"⠺", x:"⠭", y:"⠽", z:"⠵",
-    ".":"⠲", ",":"⠂", "?":"⠦", "!":"⠖", " ":" "
+    'a': '⠁', // dots 1
+    'b': '⠃', // 1 2
+    'c': '⠉', // 1 4
+    'd': '⠙', // 1 4 5
+    'e': '⠑', // 1 5
+    'f': '⠋', // 1 2 4
+    'g': '⠛', // 1 2 4 5
+    'h': '⠓', // 1 2 5
+    'i': '⠊', // 2 4
+    'j': '⠚', // 2 4 5
+    'k': '⠅', // 1 3
+    'l': '⠇', // 1 2 3
+    'm': '⠍', // 1 3 4
+    'n': '⠝', // 1 3 4 5
+    'o': '⠕', // 1 3 5
+    'p': '⠏', // 1 2 3 4
+    'q': '⠟', // 1 2 3 4 5
+    'r': '⠗', // 1 2 3 5
+    's': '⠎', // 2 3 4
+    't': '⠞', // 2 3 4 5
+    'u': '⠥', // 1 3 6
+    'v': '⠧', // 1 2 3 6
+    'w': '⠺', // 2 4 5 6
+    'x': '⠭', // 1 3 4 6
+    'y': '⠽', // 1 3 4 5 6
+    'z': '⠵', // 1 3 5 6
+    ' ': ' ',  // space
+    '.': '⠲',  // 2 5 6
+    ',': '⠂',  // 2
+    '?': '⠦',  // 2 3 6
+    '!': '⠖'   // 2 3 5
   };
 
-  const input = document.getElementById("sourceText");
-  const output = document.getElementById("brailleOutput");
-  const plain = document.getElementById("braillePlainText");
+  const brailleLabels = {
+    'a': 'a, dots 1',
+    'b': 'b, dots 1 2',
+    'c': 'c, dots 1 4',
+    'd': 'd, dots 1 4 5',
+    'e': 'e, dots 1 5',
+    'f': 'f, dots 1 2 4',
+    'g': 'g, dots 1 2 4 5',
+    'h': 'h, dots 1 2 5',
+    'i': 'i, dots 2 4',
+    'j': 'j, dots 2 4 5',
+    'k': 'k, dots 1 3',
+    'l': 'l, dots 1 2 3',
+    'm': 'm, dots 1 3 4',
+    'n': 'n, dots 1 3 4 5',
+    'o': 'o, dots 1 3 5',
+    'p': 'p, dots 1 2 3 4',
+    'q': 'q, dots 1 2 3 4 5',
+    'r': 'r, dots 1 2 3 5',
+    's': 's, dots 2 3 4',
+    't': 't, dots 2 3 4 5',
+    'u': 'u, dots 1 3 6',
+    'v': 'v, dots 1 2 3 6',
+    'w': 'w, dots 2 4 5 6',
+    'x': 'x, dots 1 3 4 6',
+    'y': 'y, dots 1 3 4 5 6',
+    'z': 'z, dots 1 3 5 6',
+    ' ': 'space',
+    '.': 'period, dots 2 5 6',
+    ',': 'comma, dots 2',
+    '?': 'question mark, dots 2 3 6',
+    '!': 'exclamation mark, dots 2 3 5'
+  };
 
-  // ===== REGULAR TEXT TYPING =====
-  function translateText(){
-     output.innerHTML="";
-     plain.textContent="";
+  const input = document.getElementById('sourceText');
+  const output = document.getElementById('brailleOutput');
+  const plain = document.getElementById('braillePlainText');
 
-     for(let c of input.value.toLowerCase()){
-       appendCell(brailleMap[c] || c);
-     }
-  }
+  function translateToBraille(text) {
+    // Build both DOM spans (for visual + screen reader) and plain text string.
+    output.innerHTML = '';
+    let plainResult = '';
 
-  input.addEventListener("input", translateText);
-
-
-  // ====== DOT → BRAILLE ======
-  function dotsToBraille(dots){
-     let code = 0x2800;
-     dots.forEach(d => code += (1 << (d-1)));
-     return String.fromCharCode(code);
-  }
-
-
-  // ===== OUTPUT CELL ======
-  function appendCell(char){
-
-    const span=document.createElement("span");
-    span.className="braille-cell";
-    span.textContent=char;
-
-    const dots=[];
-    const mask=char.codePointAt(0)-0x2800;
-
-    for(let i=0;i<6;i++){
-      if(mask & (1<<i))dots.push(i+1);
+    if (!text.trim()) {
+      const p = document.createElement('p');
+      p.className = 'hint';
+      p.textContent = 'Your Braille translation will appear here as you type.';
+      output.appendChild(p);
+      plain.textContent = '';
+      return;
     }
 
-    span.setAttribute("aria-label",
-      dots.length ? `dots ${dots.join(" ")}` : "space"
-    );
+    const lines = text.split(/\r?\n/);
 
-    output.appendChild(span);
-    plain.textContent+=char;
+    lines.forEach((line, lineIndex) => {
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'braille-line';
 
-    span.scrollIntoView({block:"nearest"});
+      for (let i = 0; i < line.length; i++) {
+        const charOriginal = line[i];
+        const lower = charOriginal.toLowerCase();
+        const isLetter = /[a-z]/.test(lower);
+        const isUpper = isLetter && charOriginal !== lower;
+
+        let brailleChar = brailleMap[lower];
+        let label = brailleLabels[lower];
+
+        if (typeof brailleChar === 'undefined') {
+          // Fallback: keep the character as-is
+          brailleChar = charOriginal;
+          label = `character ${charOriginal}`;
+        }
+
+        // Visually we use the same Braille cell for upper/lower,
+        // but we tell the screen reader it's "capital X".
+        if (isUpper) {
+          label = `capital ${charOriginal}, ${brailleLabels[lower] || 'letter'}`;
+        }
+
+        const span = document.createElement('span');
+        span.className = 'braille-cell' + (lower === ' ' ? ' space' : '');
+        span.textContent = brailleChar;
+        span.setAttribute('aria-label', label);
+
+        lineDiv.appendChild(span);
+        plainResult += brailleChar;
+      }
+
+      output.appendChild(lineDiv);
+
+      if (lineIndex < lines.length - 1) {
+        plainResult += '\n';
+      }
+    });
+
+    plain.textContent = plainResult;
   }
 
-
-  // ========= TOUCH KEYBOARD INPUT =========
-
-  let activeDots=[];
-
-  document.querySelectorAll("[data-dot]").forEach(btn=>{
-    btn.addEventListener("touchstart", e=>{
-      e.preventDefault();
-      const dot = Number(btn.dataset.dot);
-      if(!activeDots.includes(dot))
-         activeDots.push(dot);
-
-      navigator.vibrate?.(25);
-    });
+  input.addEventListener('input', () => {
+    translateToBraille(input.value);
   });
 
+  // Initial state
+  translateToBraille('');
 
-  document.querySelector(".braille-space")
-   .addEventListener("touchstart", e=>{
-      e.preventDefault();
-      if(!activeDots.length) return;
+  // =============== ADDED: BUILD TOUCH LETTER KEYBOARD (A–Z, . ! ?, SPACE) ===============
+  const keyboardContainer = document.getElementById('brailleKeyboard');
+  const keyChars = 'abcdefghijklmnopqrstuvwxyz.!? ';
 
-      appendCell(dotsToBraille(activeDots));
-      activeDots=[];
+  keyChars.split('').forEach(char => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'braille-key' + (char === ' ' ? ' space-key' : '');
+    btn.dataset.char = char;
+    btn.textContent = char === ' ' ? 'Space' : char.toUpperCase();
+    btn.setAttribute('tabindex', '-1'); // keep out of keyboard tab order
+    keyboardContainer.appendChild(btn);
   });
 
+  // Use pointer events so it works for touch + mouse, but still only discoverable by touch
+  keyboardContainer.addEventListener('pointerdown', (event) => {
+    const target = event.target;
+    if (!target.classList.contains('braille-key')) return;
+    event.preventDefault();
+
+    const ch = target.dataset.char;
+    if (!ch) return;
+
+    // Append to the source text and re-translate
+    input.value += ch;
+    translateToBraille(input.value);
+  });
 </script>
 </body>
 </html>
