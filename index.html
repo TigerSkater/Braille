@@ -282,9 +282,11 @@
 
       <!-- This live region updates as the user types -->
       <div id="brailleOutput"
-           class="output-box"
-           aria-live="polite"
-           aria-label="Braille translation output">
+         class="output-box"
+         aria-live="polite"
+         aria-label="Braille translation output"
+         contenteditable="true"
+     role="textbox">
         <p class="hint" style="margin:0;">
           Your Braille translation will appear here as you type.
         </p>
@@ -478,6 +480,45 @@
     input.value += ch;
     translateToBraille(input.value);
   });
+  // ======================================================================
+// ====================== BRAILLE → ENGLISH SUPPORT =====================
+// ======================================================================
+
+// Build reverse braille lookup map
+const reverseBrailleMap = Object.fromEntries(
+  Object.entries(brailleMap).map(([k, v]) => [v, k])
+);
+
+// Convert braille unicode back to English text
+function translateFromBraille(brailleText) {
+  let english = '';
+
+  for (const ch of brailleText) {
+    if (ch === ' ') {
+      english += ' ';
+    } else {
+      english += reverseBrailleMap[ch] ?? ch;
+    }
+  }
+
+  return english;
+}
+
+// Listen for typing INSIDE the braille output box
+output.addEventListener('input', () => {
+
+  const typedBraille = output.textContent;
+
+  // Convert braille → English
+  const english = translateFromBraille(typedBraille);
+
+  // Put English back into the textarea
+  input.value = english;
+
+  // Re-render braille with clean cells + accessibility labels
+  translateToBraille(english);
+
+});
 </script>
 </body>
 </html>
