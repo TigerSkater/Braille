@@ -356,8 +356,35 @@
   animation: oracleGlow 2.4s ease-out;
 }
 /* ===== PERSONALITY DISPLAY TWEAKS ===== */
+.personality-sofia ~ #personalityWhisper {
+  color: #ec4899;
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+@keyframes sofiaAura {
+  0% {
+    box-shadow:
+      0 0 20px rgba(236, 72, 153, 0.6),
+      0 0 40px rgba(236, 72, 153, 0.4);
+    filter: saturate(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 30px rgba(168, 85, 247, 0.9),
+      0 0 60px rgba(168, 85, 247, 0.7);
+    filter: saturate(1.3);
+  }
+
+  100% {
+    box-shadow:
+      0 0 20px rgba(236, 72, 153, 0.6),
+      0 0 40px rgba(236, 72, 153, 0.4);
+    filter: saturate(1);
+  }
+}
+
 .personality-sofia {
-  box-shadow: 0 0 40px rgba(236, 72, 153, 0.8);
+  animation: sofiaAura 3.8s ease-in-out infinite;
 }
     
 #personalityResult {
