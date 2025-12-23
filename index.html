@@ -390,6 +390,37 @@
 output.addEventListener('beforeinput', (e) => {
   e.preventDefault();
 });
+// ALLOW KEYBOARD TYPING INTO BRAILLE CONSOLE (CONTROLLED)
+output.addEventListener('keydown', (e) => {
+  // Allow navigation keys
+  const allowedControlKeys = [
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Tab', 'Shift', 'Control', 'Alt', 'Meta'
+  ];
+  if (allowedControlKeys.includes(e.key)) return;
+
+  e.preventDefault();
+
+  // Handle backspace
+  if (e.key === 'Backspace') {
+    input.value = input.value.slice(0, -1);
+    translateToBraille(input.value);
+    return;
+  }
+
+  // Handle enter (newline)
+  if (e.key === 'Enter') {
+    input.value += '\n';
+    translateToBraille(input.value);
+    return;
+  }
+
+  // Handle printable characters
+  if (e.key.length === 1) {
+    input.value += e.key;
+    translateToBraille(input.value);
+  }
+});
   function translateToBraille(text) {
     // Build both DOM spans (for visual + screen reader) and plain text string.
     output.innerHTML = '';
