@@ -15,6 +15,7 @@
       --focus: rgba(45, 212, 191, 0.7);
       --radius: 16px;
     }
+  
 
     * {
       box-sizing: border-box;
@@ -355,6 +356,10 @@
   animation: oracleGlow 2.4s ease-out;
 }
 /* ===== PERSONALITY DISPLAY TWEAKS ===== */
+.personality-sofia {
+  box-shadow: 0 0 40px rgba(236, 72, 153, 0.8);
+}
+    
 #personalityResult {
   cursor: default;
   user-select: text;
@@ -961,7 +966,23 @@ tabs.forEach(tab => {
   });
 });
   // =================== BRAILLE PERSONALITY ENGINE ===================
+function applyTierAccent(type) {
+  const root = document.documentElement;
 
+  const colors = {
+    common: '#22c55e',
+    uncommon: '#3b82f6',
+    rare: '#a855f7',
+    legendary: '#facc15',
+    oracle: '#e5e7eb',
+    sofia: '#ec4899'
+  };
+
+  const color = colors[type] || '#2dd4bf';
+
+  root.style.setProperty('--accent', color);
+  root.style.setProperty('--accent-soft', `${color}26`);
+}
 // =================== BRAILLE PERSONALITY ENGINE (DETERMINISTIC) ===================
 
 // Simple deterministic hash
@@ -978,8 +999,12 @@ function analyzeBraillePersonality(text) {
   if (!text || text.trim().length < 3) return null;
 
   const lower = text.toLowerCase();
-
-  // 🕶️ EASTER EGG (ABSOLUTE PRIORITY)
+  // 🌟 CREATOR SIGNATURE
+  if (text.trim().toLowerCase() === 'sofia tang') {
+    return { type: 'sofia', variant: 0 };
+  }
+  
+  // 🕶️ EASTER EGG (ABSOLUTE 2nd PRIORITY)
   if (lower.includes('braille')) {
     return { type: 'oracle', variant: 0 };
   }
@@ -990,7 +1015,7 @@ function analyzeBraillePersonality(text) {
   const numbers = (text.match(/[0-9]/g) || []).length;
 
   const hash = hashText(text);
-  const variant = hash % 3; // cycles descriptions
+  const variant = hash % 6; // cycles descriptions
 
   // 🟡 LEGENDARY (hard to reach)
   if (length > 200 && punctuation > 5 && caps > 5) {
@@ -1016,47 +1041,121 @@ function generatePersonalityText(result) {
 
   const personalities = {
     common: [
-      `🟢 <strong>The Grounded Translator</strong><br>
-       Calm. Clear. You bring stability to chaos.<br><em>Vibe:</em> quiet confidence.`,
-      `🟢 <strong>The Steady Braillist</strong><br>
-       Thoughtful and readable. You value clarity.<br><em>Vibe:</em> soft power.`,
-      `🟢 <strong>The Listener</strong><br>
-       You translate with intention, not noise.<br><em>Vibe:</em> trusted narrator.`
-    ],
+  `🟢 <strong>The Grounded Translator</strong><br>
+   You value clarity and calm. Your Braille is steady, readable, and trustworthy.<br>
+   <em>Vibe:</em> quiet reliability.`,
+
+  `🟢 <strong>The Consistent Reader</strong><br>
+   You favor balance and predictability. Your dots feel intentional and stable.<br>
+   <em>Vibe:</em> dependable presence.`,
+
+  `🟢 <strong>The Careful Communicator</strong><br>
+   You think before you type. Nothing feels rushed or careless in your text.<br>
+   <em>Vibe:</em> thoughtful calm.`,
+
+  `🟢 <strong>The Minimalist</strong><br>
+   You don’t overcomplicate language. Your Braille is clean and efficient.<br>
+   <em>Vibe:</em> clarity-first energy.`,
+
+  `🟢 <strong>The Listener</strong><br>
+   You translate with empathy. Your words feel chosen for someone, not everyone.<br>
+   <em>Vibe:</em> grounded understanding.`,
+
+  `🟢 <strong>The Steady Hand</strong><br>
+   You bring order to text. Even complex ideas feel approachable.<br>
+   <em>Vibe:</em> quiet competence.`
+],
 
     uncommon: [
-      `🔵 <strong>The Pattern Seer</strong><br>
-       You notice structure others miss.<br><em>Vibe:</em> systems thinker.`,
-      `🔵 <strong>The Intentional Typist</strong><br>
-       Every character has purpose.<br><em>Vibe:</em> clean design brain.`,
-      `🔵 <strong>The Strategist</strong><br>
-       You plan your words like moves.<br><em>Vibe:</em> chess energy.`
-    ],
+  `🔵 <strong>The Pattern Seer</strong><br>
+   You notice structure others miss. Your Braille reflects logic and order.<br>
+   <em>Vibe:</em> analytical calm.`,
 
+  `🔵 <strong>The Intentional Typist</strong><br>
+   Every character has purpose. Your writing feels pre-edited.<br>
+   <em>Vibe:</em> precision mindset.`,
+
+  `🔵 <strong>The Strategist</strong><br>
+   You plan your language like moves on a board.<br>
+   <em>Vibe:</em> controlled foresight.`,
+
+  `🔵 <strong>The System Thinker</strong><br>
+   You enjoy consistency and internal rules in language.<br>
+   <em>Vibe:</em> quiet optimization.`,
+
+  `🔵 <strong>The Organizer</strong><br>
+   Your text feels sorted and intentional, even when casual.<br>
+   <em>Vibe:</em> structured clarity.`,
+
+  `🔵 <strong>The Precision Reader</strong><br>
+   You value accuracy over speed. Your dots rarely feel accidental.<br>
+   <em>Vibe:</em> thoughtful exactness.`
+],
     rare: [
-      `🟣 <strong>The Expressive Architect</strong><br>
-       Emotion + structure in harmony.<br><em>Vibe:</em> elegant intensity.`,
-      `🟣 <strong>The Braille Storyweaver</strong><br>
-       You build worlds in dots.<br><em>Vibe:</em> late-night creator.`,
-      `🟣 <strong>The Signal Booster</strong><br>
-       Your voice carries.<br><em>Vibe:</em> intentional impact.`
-    ],
+  `🟣 <strong>The Expressive Architect</strong><br>
+   You balance emotion and structure seamlessly.<br>
+   <em>Vibe:</em> creative discipline.`,
 
-    legendary: [
-      `🟡 <strong>The Braille Virtuoso</strong><br>
-       Rare. Powerful. Unmistakable.<br><em>Vibe:</em> generational talent.`,
-      `🟡 <strong>The Dot Alchemist</strong><br>
-       You turn language into experience.<br><em>Vibe:</em> art meets logic.`,
-      `🟡 <strong>The Luminary</strong><br>
-       Others follow your patterns.<br><em>Vibe:</em> quiet legend.`
-    ],
+  `🟣 <strong>The Storyweaver</strong><br>
+   Your Braille feels narrative and alive.<br>
+   <em>Vibe:</em> late-night creator.`,
+
+  `🟣 <strong>The Signal Booster</strong><br>
+   Your words carry weight. People feel your intent.<br>
+   <em>Vibe:</em> expressive impact.`,
+
+  `🟣 <strong>The Aesthetic Translator</strong><br>
+   You care how language feels, not just what it says.<br>
+   <em>Vibe:</em> intentional beauty.`,
+
+  `🟣 <strong>The Emotional Cartographer</strong><br>
+   You map feeling through dots and spacing.<br>
+   <em>Vibe:</em> subtle intensity.`,
+
+  `🟣 <strong>The Creative Analyst</strong><br>
+   You mix logic with flair effortlessly.<br>
+   <em>Vibe:</em> controlled creativity.`
+],
+
+legendary: [
+  `🟡 <strong>The Braille Virtuoso</strong><br>
+   You move fluently between precision and expression.<br>
+   <em>Vibe:</em> effortless mastery.`,
+
+  `🟡 <strong>The Dot Alchemist</strong><br>
+   You transform raw text into experience.<br>
+   <em>Vibe:</em> art meets logic.`,
+
+  `🟡 <strong>The Luminary</strong><br>
+   Others unconsciously follow your structure.<br>
+   <em>Vibe:</em> quiet authority.`,
+
+  `🟡 <strong>The Pattern Leader</strong><br>
+   Your writing sets standards without trying.<br>
+   <em>Vibe:</em> influential calm.`,
+
+  `🟡 <strong>The Braille Conductor</strong><br>
+   You orchestrate language with precision and flow.<br>
+   <em>Vibe:</em> composed brilliance.`,
+
+  `🟡 <strong>The Master Translator</strong><br>
+   Your Braille feels inevitable — like it couldn’t be otherwise.<br>
+   <em>Vibe:</em> refined excellence.`
+],
 
     oracle: [
-      `🕶️ <strong>The Braille Oracle</strong><br>
-       You typed the name of the system itself.<br>
-       The dots recognize you.<br><br>
-       <em>“Not all readers are meant to translate.”</em>`
-    ]
+  `🕶️ <strong>The Braille Oracle</strong><br>
+   You typed the name of the system itself.<br>
+   The dots recognized you.<br><br>
+   <em>“Not all readers are meant to translate.”</em>`
+],
+
+    sofia: [
+  `✨ <strong>The Architect of the System</strong><br>
+   You didn’t just translate Braille — you built a space where it could speak.<br>
+   Accessibility here is intentional, expressive, and human.<br><br>
+   <em>Vibe:</em> thoughtful creator energy.`
+]
   };
 
   return personalities[type][variant] || personalities.common[0];
@@ -1096,7 +1195,8 @@ box.classList.remove(
   'revealed',
   'personality-rare',
   'personality-legendary',
-  'personality-oracle'
+  'personality-oracle',
+  'personality-sofia'
 );
 box.className = 'hint';
 box.innerHTML = 'Your result will appear here.';
@@ -1149,7 +1249,8 @@ function runPersonalityReveal(text) {
   const personalityBox = document.getElementById('personalityResult');
 
   if (!result || !personalityBox) return;
-
+  applyTierAccent(result.type);
+  
   personalityBox.className = 'hint'; // reset
   personalityBox.innerHTML = generatePersonalityText(result);
   const brailleNameBox = document.getElementById('personalityBrailleName');
@@ -1166,6 +1267,9 @@ brailleNameBox.innerHTML =
   }
   if (result.type === 'oracle') {
     personalityBox.classList.add('personality-oracle');
+  }
+  if (result.type === 'sofia') {
+  personalityBox.classList.add('personality-sofia');
   }
 
   showWhisper(result.type);
