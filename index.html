@@ -45,7 +45,16 @@
     header {
       margin-bottom: 1.5rem;
     }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+  }
 
+    .header-bar .tabs {
+     margin-top: 0.2rem;
+  }
     h1 {
       font-size: 1.6rem;
       margin: 0 0 0.4rem;
@@ -269,7 +278,8 @@
 </head>
 <body>
 <main>
-  <header>
+  <header class="header-bar">
+  <div>
     <h1>
       Accessible Braille Translator
       <span class="logo-dot">⠃⠗⠇</span>
@@ -277,11 +287,10 @@
     <p class="tagline">
       Type text, see Braille dots visually, and let screen readers “feel” each cell with spoken labels.
     </p>
-  </header>
+  </div>
 
-  <section class="grid" aria-label="Braille translator">
-  <!-- =================== TAB CONTROLS =================== -->
-<div class="tabs" role="tablist" aria-label="Braille translator tabs">
+  <!-- TAB CONTROLS MOVED HERE -->
+  <div class="tabs" role="tablist" aria-label="Braille translator tabs">
   <button
     class="tab-button"
     role="tab"
@@ -300,6 +309,9 @@
     Info
   </button>
 </div>
+</header>
+
+  <section class="grid" aria-label="Braille translator">
   <!-- =================== INFO TAB =================== -->
 <div
   id="panel-info"
@@ -334,6 +346,38 @@
       <strong>Room 204</strong> → <strong>⠗⠕⠕⠍ ⠼⠃⠚⠙</strong>
     </p>
   </section>
+  <section class="card" style="margin-top:1rem;">
+  <div class="output-header">
+    <div class="output-title">Did you know?</div>
+    <div class="output-subtitle">How capitalization works in Braille</div>
+  </div>
+
+  <p class="hint" style="margin-top:0.4rem;">
+    In English Braille, capital letters do not have different dot patterns
+    from lowercase letters. Instead, Braille uses a <strong>capital sign</strong>
+    to indicate that the following letter should be read as uppercase.
+  </p>
+
+  <p class="hint">
+    The capital sign is <strong>⠠</strong> (dot&nbsp;6). It appears
+    <em>before</em> the letter it modifies.
+  </p>
+
+  <p class="hint">
+    Examples:
+    <br />
+    <strong>c</strong> → <strong>⠉</strong>
+    <br />
+    <strong>C</strong> → <strong>⠠⠉</strong>
+    <br />
+    <strong>Cat</strong> → <strong>⠠⠉⠁⠞</strong>
+  </p>
+
+  <p class="hint">
+    Screen readers will announce the capital sign so that users can clearly
+    distinguish between uppercase and lowercase letters.
+  </p>
+</section>
 </div>
     <!-- =================== TRANSLATOR TAB =================== -->
 <div
