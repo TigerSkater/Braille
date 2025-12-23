@@ -282,11 +282,12 @@
 
       <!-- This live region updates as the user types -->
       <div id="brailleOutput"
-         class="output-box"
-         aria-live="polite"
-         aria-label="Braille translation output"
-         contenteditable="true"
-     role="textbox">
+       class="output-box"
+       aria-live="polite"
+       aria-label="Braille translation output"
+       contenteditable="true"
+       role="textbox"
+       spellcheck="false">
         <p class="hint" style="margin:0;">
           Your Braille translation will appear here as you type.
         </p>
@@ -385,7 +386,10 @@
   const input = document.getElementById('sourceText');
   const output = document.getElementById('brailleOutput');
   const plain = document.getElementById('braillePlainText');
-
+// PREVENT NATIVE TEXT INSERTION INTO BRAILLE OUTPUT
+output.addEventListener('beforeinput', (e) => {
+  e.preventDefault();
+});
   function translateToBraille(text) {
     // Build both DOM spans (for visual + screen reader) and plain text string.
     output.innerHTML = '';
