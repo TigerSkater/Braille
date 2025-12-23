@@ -350,6 +350,38 @@
 .personality-oracle {
   animation: oracleGlow 2.4s ease-out;
 }
+/* ===== PERSONALITY DISPLAY TWEAKS ===== */
+#personalityResult {
+  cursor: default;
+  user-select: text;
+}
+#personalityResult:not(.revealed) {
+  filter: blur(4px);
+  opacity: 0.6;
+}
+
+#personalityResult.revealed {
+  filter: none;
+  opacity: 1;
+}
+#panel-personality .card {
+  background: linear-gradient(
+    135deg,
+    rgba(45, 212, 191, 0.12),
+    rgba(2, 6, 23, 0.6)
+  );
+  min-height: 220px;
+}
+/* ===== PERSONALITY CARD EXPANSION ===== */
+#panel-personality .card {
+  min-height: 220px;
+  max-width: 100%;
+}
+
+#personalityResult {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
   </style>
 </head>
 <body>
@@ -479,10 +511,51 @@
       <div class="output-subtitle">Not science. Pure vibes.</div>
     </div>
 
-    <div id="personalityResult" class="hint">
-      Type something in the Translator tab to reveal your personality 👀
-    </div>
-    <div
+    <label for="personalityInput" class="hint">
+  Enter your name to reveal your Braille personality
+</label>
+
+<input
+  id="personalityInput"
+  type="text"
+  placeholder="Your name…"
+  style="
+    width:100%;
+    padding:0.6rem 0.7rem;
+    margin:0.4rem 0 0.6rem;
+    border-radius:10px;
+    border:1px solid rgba(148,163,184,0.4);
+    background:#020617;
+    color:var(--text);
+  "
+/>
+
+<button
+  id="revealPersonality"
+  class="tab-button"
+  style="margin-bottom:0.6rem;">
+  Reveal ✨
+</button>
+
+<button
+  id="resetPersonality"
+  class="tab-button"
+  style="margin-left:0.4rem; opacity:0.7;">
+  Try another name
+</button>
+    
+<button
+  id="resetPersonality"
+  class="tab-button"
+  style="margin-left:0.4rem; opacity:0.7;">
+  Try another name
+</button>
+
+<div id="personalityResult" class="hint">
+  Your result will appear here.
+</div>
+
+<div
   id="personalityWhisper"
   class="hint"
   aria-hidden="true"
@@ -790,32 +863,7 @@ if (isUpper) {
         plainResult += '\n';
       }
     });
-    const result = analyzeBraillePersonality(text);
-if (result) {
-  const personalityBox = document.getElementById('personalityResult');
-  if (personalityBox) {
-    personalityBox.innerHTML = generatePersonalityText(result);
-
-    // reset styles
-    personalityBox.className = 'hint';
-
-    // glow based on tier
-    if (result.type === 'rare') {
-      personalityBox.classList.add('personality-rare');
-    }
-    if (result.type === 'legendary') {
-      personalityBox.classList.add('personality-legendary');
-    }
-    if (result.type === 'oracle') {
-      personalityBox.classList.add('personality-oracle');
-    }
-
-    showWhisper(result.type);
-  }
-}
-    plain.textContent = plainResult;
-  }
-
+    
   input.addEventListener('input', () => {
     translateToBraille(input.value);
   });
@@ -1030,6 +1078,72 @@ function showWhisper(type) {
   whisper.style.opacity = 1;
   whisper.setAttribute('aria-hidden', 'false');
 }
+const personalityInput = document.getElementById('personalityInput');
+const revealBtn = document.getElementById('revealPersonality');
+const resetBtn = document.getElementById('resetPersonality');
+
+resetBtn?.addEventListener('click', () => {
+  // clear input
+  personalityInput.value = '';
+
+  // reset result
+  const box = document.getElementById('personalityResult');
+  box.classList.remove(
+    'revealed',
+    'personality-rare',
+    'personality-legendary',
+    'personality-oracle'
+  );
+  box.className = 'hint';
+  box.innerHTML = 'Your result will appear here.';
+
+  // hide whisper
+  const whisper = document.getElementById('personalityWhisper');
+  whisper.style.opacity = 0;
+  whisper.setAttribute('aria-hidden', 'true');
+
+  // refocus input
+  personalityInput.focus();
+});
+    
+function runPersonalityReveal(text) {
+  if (!text || text.trim().length < 1) return;
+
+  const result = analyzeBraillePersonality(text);
+  const personalityBox = document.getElementById('personalityResult');
+
+  if (!result || !personalityBox) return;
+
+  personalityBox.className = 'hint'; // reset
+  personalityBox.innerHTML = generatePersonalityText(result);
+  personalityBox.classList.add('revealed');
+
+  // glow tier
+  if (result.type === 'rare') {
+    personalityBox.classList.add('personality-rare');
+  }
+  if (result.type === 'legendary') {
+    personalityBox.classList.add('personality-legendary');
+  }
+  if (result.type === 'oracle') {
+    personalityBox.classList.add('personality-oracle');
+  }
+
+  showWhisper(result.type);
+}
+
+// Button click
+revealBtn?.addEventListener('click', () => {
+  runPersonalityReveal(personalityInput.value);
+});
+
+// Enter key support
+personalityInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    runPersonalityReveal(personalityInput.value);
+  }
+});
 </script>
 </body>
 </html>
