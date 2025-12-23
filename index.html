@@ -320,6 +320,36 @@
   width: 100%;
   max-width: 100%;
 }
+/* ===== PERSONALITY REVEAL GLOW ===== */
+@keyframes rareGlow {
+  0% { box-shadow: 0 0 0 rgba(168, 85, 247, 0.0); }
+  50% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.8); }
+  100% { box-shadow: 0 0 0 rgba(168, 85, 247, 0.0); }
+}
+
+@keyframes legendaryGlow {
+  0% { box-shadow: 0 0 0 rgba(250, 204, 21, 0.0); }
+  50% { box-shadow: 0 0 35px rgba(250, 204, 21, 0.9); }
+  100% { box-shadow: 0 0 0 rgba(250, 204, 21, 0.0); }
+}
+
+@keyframes oracleGlow {
+  0% { box-shadow: 0 0 0 rgba(148, 163, 184, 0.0); }
+  50% { box-shadow: 0 0 40px rgba(226, 232, 240, 0.95); }
+  100% { box-shadow: 0 0 0 rgba(148, 163, 184, 0.0); }
+}
+
+.personality-rare {
+  animation: rareGlow 1.6s ease-out;
+}
+
+.personality-legendary {
+  animation: legendaryGlow 2s ease-out;
+}
+
+.personality-oracle {
+  animation: oracleGlow 2.4s ease-out;
+}
   </style>
 </head>
 <body>
@@ -354,6 +384,16 @@
     aria-controls="panel-info">
     Info
   </button>
+    
+  <button
+  class="tab-button"
+  role="tab"
+  id="tab-personality"
+  aria-selected="false"
+  aria-controls="panel-personality">
+  Personality
+</button>
+    
 </div>
 </header>
 
@@ -425,6 +465,33 @@
   </p>
 </section>
 </div>
+<!-- =================== PERSONALITY TAB =================== -->
+<div
+  id="panel-personality"
+  class="tab-panel"
+  role="tabpanel"
+  aria-labelledby="tab-personality"
+  aria-hidden="true">
+
+  <section class="card">
+    <div class="output-header">
+      <div class="output-title">✨ Your Braille Personality</div>
+      <div class="output-subtitle">Not science. Pure vibes.</div>
+    </div>
+
+    <div id="personalityResult" class="hint">
+      Type something in the Translator tab to reveal your personality 👀
+    </div>
+    <div
+  id="personalityWhisper"
+  class="hint"
+  aria-hidden="true"
+  style="opacity:0; margin-top:0.6rem; font-style:italic;">
+</div>
+  </section>
+
+</div>
+    
     <!-- =================== TRANSLATOR TAB =================== -->
 <div
   id="panel-translator"
@@ -723,7 +790,29 @@ if (isUpper) {
         plainResult += '\n';
       }
     });
+    const result = analyzeBraillePersonality(text);
+if (result) {
+  const personalityBox = document.getElementById('personalityResult');
+  if (personalityBox) {
+    personalityBox.innerHTML = generatePersonalityText(result);
 
+    // reset styles
+    personalityBox.className = 'hint';
+
+    // glow based on tier
+    if (result.type === 'rare') {
+      personalityBox.classList.add('personality-rare');
+    }
+    if (result.type === 'legendary') {
+      personalityBox.classList.add('personality-legendary');
+    }
+    if (result.type === 'oracle') {
+      personalityBox.classList.add('personality-oracle');
+    }
+
+    showWhisper(result.type);
+  }
+}
     plain.textContent = plainResult;
   }
 
@@ -820,6 +909,127 @@ tabs.forEach(tab => {
       .setAttribute('aria-hidden', 'false');
   });
 });
+  // =================== BRAILLE PERSONALITY ENGINE ===================
+
+// =================== BRAILLE PERSONALITY ENGINE (DETERMINISTIC) ===================
+
+// Simple deterministic hash
+function hashText(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function analyzeBraillePersonality(text) {
+  if (!text || text.trim().length < 3) return null;
+
+  const lower = text.toLowerCase();
+
+  // 🕶️ EASTER EGG (ABSOLUTE PRIORITY)
+  if (lower.includes('braille')) {
+    return { type: 'oracle', variant: 0 };
+  }
+
+  const length = text.length;
+  const caps = (text.match(/[A-Z]/g) || []).length;
+  const punctuation = (text.match(/[.!?]/g) || []).length;
+  const numbers = (text.match(/[0-9]/g) || []).length;
+
+  const hash = hashText(text);
+  const variant = hash % 3; // cycles descriptions
+
+  // 🟡 LEGENDARY (hard to reach)
+  if (length > 200 && punctuation > 5 && caps > 5) {
+    return { type: 'legendary', variant };
+  }
+
+  // 🟣 RARE
+  if (length > 120 && punctuation >= 3) {
+    return { type: 'rare', variant };
+  }
+
+  // 🔵 UNCOMMON
+  if (numbers >= 3 || caps > length * 0.25) {
+    return { type: 'uncommon', variant };
+  }
+
+  // 🟢 COMMON
+  return { type: 'common', variant };
+}
+
+function generatePersonalityText(result) {
+  const { type, variant } = result;
+
+  const personalities = {
+    common: [
+      `🟢 <strong>The Grounded Translator</strong><br>
+       Calm. Clear. You bring stability to chaos.<br><em>Vibe:</em> quiet confidence.`,
+      `🟢 <strong>The Steady Braillist</strong><br>
+       Thoughtful and readable. You value clarity.<br><em>Vibe:</em> soft power.`,
+      `🟢 <strong>The Listener</strong><br>
+       You translate with intention, not noise.<br><em>Vibe:</em> trusted narrator.`
+    ],
+
+    uncommon: [
+      `🔵 <strong>The Pattern Seer</strong><br>
+       You notice structure others miss.<br><em>Vibe:</em> systems thinker.`,
+      `🔵 <strong>The Intentional Typist</strong><br>
+       Every character has purpose.<br><em>Vibe:</em> clean design brain.`,
+      `🔵 <strong>The Strategist</strong><br>
+       You plan your words like moves.<br><em>Vibe:</em> chess energy.`
+    ],
+
+    rare: [
+      `🟣 <strong>The Expressive Architect</strong><br>
+       Emotion + structure in harmony.<br><em>Vibe:</em> elegant intensity.`,
+      `🟣 <strong>The Braille Storyweaver</strong><br>
+       You build worlds in dots.<br><em>Vibe:</em> late-night creator.`,
+      `🟣 <strong>The Signal Booster</strong><br>
+       Your voice carries.<br><em>Vibe:</em> intentional impact.`
+    ],
+
+    legendary: [
+      `🟡 <strong>The Braille Virtuoso</strong><br>
+       Rare. Powerful. Unmistakable.<br><em>Vibe:</em> generational talent.`,
+      `🟡 <strong>The Dot Alchemist</strong><br>
+       You turn language into experience.<br><em>Vibe:</em> art meets logic.`,
+      `🟡 <strong>The Luminary</strong><br>
+       Others follow your patterns.<br><em>Vibe:</em> quiet legend.`
+    ],
+
+    oracle: [
+      `🕶️ <strong>The Braille Oracle</strong><br>
+       You typed the name of the system itself.<br>
+       The dots recognize you.<br><br>
+       <em>“Not all readers are meant to translate.”</em>`
+    ]
+  };
+
+  return personalities[type][variant] || personalities.common[0];
+}
+function showWhisper(type) {
+  const whisper = document.getElementById('personalityWhisper');
+  if (!whisper) return;
+
+  const whispers = {
+    rare: 'You unlocked a rare type.',
+    legendary: 'Few users reach this.',
+    oracle: 'The system noticed you.'
+  };
+
+  if (!whispers[type]) {
+    whisper.style.opacity = 0;
+    whisper.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  whisper.textContent = whispers[type];
+  whisper.style.opacity = 1;
+  whisper.setAttribute('aria-hidden', 'false');
+}
 </script>
 </body>
 </html>
