@@ -348,6 +348,21 @@
     '?': '⠦',  // 2 3 6
     '!': '⠖'   // 2 3 5
   };
+    // Braille number system (Grade 1 English)
+  const NUMBER_SIGN = '⠼';
+
+  const digitToBraille = {
+    '1': '⠁',
+    '2': '⠃',
+    '3': '⠉',
+    '4': '⠙',
+    '5': '⠑',
+    '6': '⠋',
+    '7': '⠛',
+    '8': '⠓',
+    '9': '⠊',
+    '0': '⠚'
+  };
 
   const brailleLabels = {
     'a': 'a, dots 1',
@@ -381,6 +396,18 @@
     ',': 'comma, dots 2',
     '?': 'question mark, dots 2 3 6',
     '!': 'exclamation mark, dots 2 3 5'
+  };
+    const digitLabels = {
+    '1': 'number 1',
+    '2': 'number 2',
+    '3': 'number 3',
+    '4': 'number 4',
+    '5': 'number 5',
+    '6': 'number 6',
+    '7': 'number 7',
+    '8': 'number 8',
+    '9': 'number 9',
+    '0': 'number 0'
   };
 
   const input = document.getElementById('sourceText');
@@ -438,6 +465,7 @@ output.addEventListener('keydown', (e) => {
     const lines = text.split(/\r?\n/);
 
     lines.forEach((line, lineIndex) => {
+      let inNumberMode = false;
       const lineDiv = document.createElement('div');
       lineDiv.className = 'braille-line';
 
@@ -447,8 +475,29 @@ output.addEventListener('keydown', (e) => {
         const isLetter = /[a-z]/.test(lower);
         const isUpper = isLetter && charOriginal !== lower;
 
-        let brailleChar = brailleMap[lower];
-        let label = brailleLabels[lower];
+        let brailleChar;
+        let label;
+
+        // ===== NUMBER HANDLING =====
+        if (/[0-9]/.test(charOriginal)) {
+          if (!inNumberMode) {
+            // Insert number sign ⠼
+            const numSignSpan = document.createElement('span');
+            numSignSpan.className = 'braille-cell';
+            numSignSpan.textContent = NUMBER_SIGN;
+            numSignSpan.setAttribute('aria-label', 'number sign');
+            lineDiv.appendChild(numSignSpan);
+            plainResult += NUMBER_SIGN;
+            inNumberMode = true;
+          }
+
+          brailleChar = digitToBraille[charOriginal];
+          label = digitLabels[charOriginal];
+        } else {
+          inNumberMode = false;
+          brailleChar = brailleMap[lower];
+          label = brailleLabels[lower];
+        }
 
         if (typeof brailleChar === 'undefined') {
           // Fallback: keep the character as-is
@@ -490,14 +539,19 @@ output.addEventListener('keydown', (e) => {
 
   // =============== ADDED: BUILD TOUCH LETTER KEYBOARD (A–Z, . ! ?, SPACE) ===============
   const keyboardContainer = document.getElementById('brailleKeyboard');
-  const keyChars = 'abcdefghijklmnopqrstuvwxyz.!? ';
+  const keyChars = 'abcdefghijklmnopqrstuvwxyz0123456789.!? ';
 
   keyChars.split('').forEach(char => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'braille-key' + (char === ' ' ? ' space-key' : '');
     btn.dataset.char = char;
-    btn.textContent = char === ' ' ? 'Space' : char.toUpperCase();
+    btn.textContent =
+      char === ' '
+        ? 'Space'
+        : /[0-9]/.test(char)
+            ? char
+            : char.toUpperCase();
     btn.setAttribute('tabindex', '-1'); // keep out of keyboard tab order
     keyboardContainer.appendChild(btn);
   });
