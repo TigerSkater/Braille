@@ -235,6 +235,36 @@
       background: rgba(59, 130, 246, 0.2);
       border-color: rgba(59, 130, 246, 0.5);
     }
+    /* =================== TABS =================== */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.tab-button[aria-selected="true"] {
+  background: rgba(45, 212, 191, 0.18);
+  color: var(--accent);
+  border-color: rgba(45, 212, 191, 0.6);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel[aria-hidden="false"] {
+  display: block;
+}
   </style>
 </head>
 <body>
@@ -250,6 +280,68 @@
   </header>
 
   <section class="grid" aria-label="Braille translator">
+  <!-- =================== TAB CONTROLS =================== -->
+<div class="tabs" role="tablist" aria-label="Braille translator tabs">
+  <button
+    class="tab-button"
+    role="tab"
+    id="tab-translator"
+    aria-selected="true"
+    aria-controls="panel-translator">
+    Translator
+  </button>
+
+  <button
+    class="tab-button"
+    role="tab"
+    id="tab-info"
+    aria-selected="false"
+    aria-controls="panel-info">
+    Info
+  </button>
+</div>
+  <!-- =================== INFO TAB =================== -->
+<div
+  id="panel-info"
+  class="tab-panel"
+  role="tabpanel"
+  aria-labelledby="tab-info"
+  aria-hidden="true">
+
+  <section class="card">
+    <div class="output-header">
+      <div class="output-title">Did you know?</div>
+      <div class="output-subtitle">How numbers work in Braille</div>
+    </div>
+
+    <p class="hint" style="margin-top:0.4rem;">
+      In English Braille, numbers don’t have their own unique symbols.
+      Instead, Braille uses a <strong>number sign</strong> to signal that the
+      following letters should be read as numbers.
+    </p>
+
+    <p class="hint">
+      The number sign is <strong>⠼</strong>. After it appears, the letters
+      <strong>a–j</strong> represent the digits <strong>1–0</strong>.
+      This number mode continues until a space or line break.
+    </p>
+
+    <p class="hint">
+      Examples:
+      <br />
+      <strong>2025</strong> → <strong>⠼⠃⠚⠃⠑</strong>
+      <br />
+      <strong>Room 204</strong> → <strong>⠗⠕⠕⠍ ⠼⠃⠚⠙</strong>
+    </p>
+  </section>
+</div>
+    <!-- =================== TRANSLATOR TAB =================== -->
+<div
+  id="panel-translator"
+  class="tab-panel"
+  role="tabpanel"
+  aria-labelledby="tab-translator"
+  aria-hidden="false">
     <!-- INPUT -->
     <section class="card" aria-label="Text input">
       <label for="sourceText">Text to translate</label>
@@ -297,7 +389,8 @@
       <div id="braillePlainText" class="sr-only"
            aria-hidden="false"
            aria-label="Plain text representation of the Braille dots"></div>
-    </section>
+    </section> 
+  </div> <!-- end panel-translator -->
   </section>
 
   <!-- ============ ADDED: TOUCH-ONLY LETTER KEYBOARD (A–Z, . ! ?, SPACE) ============ -->
@@ -607,6 +700,21 @@ output.addEventListener('input', () => {
   // Re-render braille with clean cells + accessibility labels
   translateToBraille(english);
 
+});
+// =================== TAB SWITCHING ===================
+const tabs = document.querySelectorAll('[role="tab"]');
+const panels = document.querySelectorAll('[role="tabpanel"]');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+    panels.forEach(p => p.setAttribute('aria-hidden', 'true'));
+
+    tab.setAttribute('aria-selected', 'true');
+    document
+      .getElementById(tab.getAttribute('aria-controls'))
+      .setAttribute('aria-hidden', 'false');
+  });
 });
 </script>
 </body>
