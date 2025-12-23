@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Accessible Braille Translator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(45, 212, 191, 0.16);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --focus: rgba(45, 212, 191, 0.7);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #1f2937, #020617);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+}
+    
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 1.75rem 1.5rem 2rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+  }
+
+    .header-bar .tabs {
+     margin-top: 0.2rem;
+  }
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 0.4rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    h1 span.logo-dot {
+      font-size: 1.7rem;
+      letter-spacing: 0.15em;
+    }
+
+    p.tagline {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+ @media (max-width: 800px) {
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+}
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1.1rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: #020617;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--focus);
+      background: #020617;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      white-space: nowrap;
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .output-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .output-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .output-box {
+      min-height: 150px;
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: #020617;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      overflow-x: auto;
+    }
+
+    .braille-line {
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .braille-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      margin-right: 0.3rem;
+      padding: 0.1rem 0.25rem;
+    }
+
+    .braille-cell.space {
+      width: 1.2rem;
+    }
+
+    .footer-note {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.25);
+      border: 1px solid rgba(45, 212, 191, 0.5);
+      color: var(--accent);
+    }
+
+    .badge-dot {
+      width: 0.4rem;
+      height: 0.4rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    /* =================== ADDED: OVERRIDE FOR NO LETTER SPACING =================== */
+    .braille-cell {
+      margin-right: 0; /* no extra space between braille characters */
+    }
+
+    /* =================== ADDED: TOUCH LETTER KEYBOARD STYLES =================== */
+    .braille-keyboard {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.5rem;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .braille-key {
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid rgba(45, 212, 191, 0.45);
+      background: rgba(45, 212, 191, 0.18);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .braille-key:active {
+      background: rgba(45, 212, 191, 0.45);
+      transform: scale(0.97);
+    }
+
+    .braille-key.space-key {
+      grid-column: 1 / -1;
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+    /* =================== TABS =================== */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.tab-button[aria-selected="true"] {
+  background: rgba(45, 212, 191, 0.18);
+  color: var(--accent);
+  border-color: rgba(45, 212, 191, 0.6);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel[aria-hidden="false"] {
+  display: block;
+}
+/* ===== TRANSLATOR LAYOUT FIX ===== */
+.translator-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Stack on small screens */
+@media (max-width: 800px) {
+  .translator-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Make keyboard wider */
+.braille-keyboard {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+@media (min-width: 900px) {
+  .braille-keyboard {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+    /* Let Translator tab span the full grid width */
+#panel-translator {
+  grid-column: 1 / -1;
+}
+/* Hide keyboard ONLY on Info tab */
+#panel-info .braille-keyboard {
+  display: none;
+}
+/* Make Info tab use full width */
+#panel-info {
+  grid-column: 1 / -1;
+}
+
+/* Stretch cards inside Info tab */
+#panel-info .card {
+  width: 100%;
+  max-width: 100%;
+}
+  </style>
+</head>
+<body>
+<main>
+  <header class="header-bar">
+  <div>
+    <h1>
+      Accessible Braille Translator
+      <span class="logo-dot">⠃⠗⠇</span>
+    </h1>
+    <p class="tagline">
+      Type text, see Braille dots visually, and let screen readers “feel” each cell with spoken labels.
+    </p>
+  </div>
+
+  <!-- TAB CONTROLS MOVED HERE -->
+  <div class="tabs" role="tablist" aria-label="Braille translator tabs">
+  <button
+    class="tab-button"
+    role="tab"
+    id="tab-translator"
+    aria-selected="true"
+    aria-controls="panel-translator">
+    Translator
+  </button>
+
+  <button
+    class="tab-button"
+    role="tab"
+    id="tab-info"
+    aria-selected="false"
+    aria-controls="panel-info">
+    Info
+  </button>
+</div>
+</header>
+
+  <section class="grid" aria-label="Braille translator">
+  <!-- =================== INFO TAB =================== -->
+<div
+  id="panel-info"
+  class="tab-panel"
+  role="tabpanel"
+  aria-labelledby="tab-info"
+  aria-hidden="true">
+
+  <section class="card">
+    <div class="output-header">
+      <div class="output-title">Did you know?</div>
+      <div class="output-subtitle">How numbers work in Braille</div>
+    </div>
+
+    <p class="hint" style="margin-top:0.4rem;">
+      In English Braille, numbers don’t have their own unique symbols.
+      Instead, Braille uses a <strong>number sign</strong> to signal that the
+      following letters should be read as numbers.
+    </p>
+
+    <p class="hint">
+      The number sign is <strong>⠼</strong>. After it appears, the letters
+      <strong>a–j</strong> represent the digits <strong>1–0</strong>.
+      This number mode continues until a space or line break.
+    </p>
+
+    <p class="hint">
+      Examples:
+      <br />
+      <strong>2025</strong> → <strong>⠼⠃⠚⠃⠑</strong>
+      <br />
+      <strong>Room 204</strong> → <strong>⠗⠕⠕⠍ ⠼⠃⠚⠙</strong>
+    </p>
+  </section>
+  <section class="card" style="margin-top:1rem;">
+  <div class="output-header">
+    <div class="output-title">Did you know?</div>
+    <div class="output-subtitle">How capitalization works in Braille</div>
+  </div>
+
+  <p class="hint" style="margin-top:0.4rem;">
+    In English Braille, capital letters do not have different dot patterns
+    from lowercase letters. Instead, Braille uses a <strong>capital sign</strong>
+    to indicate that the following letter should be read as uppercase.
+  </p>
+
+  <p class="hint">
+    The capital sign is <strong>⠠</strong> (dot&nbsp;6). It appears
+    <em>before</em> the letter it modifies.
+  </p>
+
+  <p class="hint">
+    Examples:
+    <br />
+    <strong>c</strong> → <strong>⠉</strong>
+    <br />
+    <strong>C</strong> → <strong>⠠⠉</strong>
+    <br />
+    <strong>Cat</strong> → <strong>⠠⠉⠁⠞</strong>
+  </p>
+
+  <p class="hint">
+    Screen readers will announce the capital sign so that users can clearly
+    distinguish between uppercase and lowercase letters.
+  </p>
+</section>
+</div>
+    <!-- =================== TRANSLATOR TAB =================== -->
+<div
+  id="panel-translator"
+  class="tab-panel"
+  role="tabpanel"
+  aria-labelledby="tab-translator"
+  aria-hidden="false">
+    
+
+      <div class="translator-row">
+
+  <!-- INPUT -->
+  <section class="card" aria-label="Text input">
+    <label for="sourceText">Text to translate</label>
+    <p class="hint">
+      Supports basic Grade&nbsp;1 English (letters a–z, space, . , ? !). Case is announced to screen readers.
+    </p>
+    <textarea
+      id="sourceText"
+      name="sourceText"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Type something like: Hello world!"
+    ></textarea>
+    <p class="footer-note">
+      <span class="badge">
+        <span class="badge-dot"></span>
+        Screen-reader friendly: each Braille cell has an ARIA label like “a, dots 1”.
+      </span>
+    </p>
+  </section>
+
+  <!-- OUTPUT -->
+  <section class="card" aria-label="Braille output">
+    <div class="output-header">
+      <div class="output-title">Braille output</div>
+      <div class="output-subtitle">
+        Screen readers will read each cell by name and dot pattern.
+      </div>
+    </div>
+
+    <div id="brailleOutput"
+      class="output-box"
+      aria-live="polite"
+      aria-label="Braille translation output"
+      contenteditable="true"
+      role="textbox"
+      spellcheck="false">
+      <p class="hint" style="margin:0;">
+        Your Braille translation will appear here as you type.
+      </p>
+    </div>
+
+    <div id="braillePlainText" class="sr-only"
+      aria-hidden="false"
+      aria-label="Plain text representation of the Braille dots"></div>
+  </section>
+
+</div>
+  <!-- ============ ADDED: TOUCH-ONLY LETTER KEYBOARD (A–Z, . ! ?, SPACE) ============ -->
+  <section class="card" aria-hidden="true" style="margin-top:1rem;">
+    <p class="hint" style="margin-bottom:0.6rem;">
+      Touch the keys below to insert letters. This keyboard is hidden from screen readers.
+    </p>
+    <div id="brailleKeyboard" class="braille-keyboard"></div>
+  </section>
+  </div> <!-- end panel-translator -->
+  </section>
+
+
+  <p class="footer-note">
+    Note: This is a simplified visual and auditory helper for Braille patterns, not a full production-grade Braille translation engine.
+  </p>
+</main>
+
+<script>
+  // Basic Grade 1 Braille map (letters + some punctuation)
+  const brailleMap = {
+    'a': '⠁', // dots 1
+    'b': '⠃', // 1 2
+    'c': '⠉', // 1 4
+    'd': '⠙', // 1 4 5
+    'e': '⠑', // 1 5
+    'f': '⠋', // 1 2 4
+    'g': '⠛', // 1 2 4 5
+    'h': '⠓', // 1 2 5
+    'i': '⠊', // 2 4
+    'j': '⠚', // 2 4 5
+    'k': '⠅', // 1 3
+    'l': '⠇', // 1 2 3
+    'm': '⠍', // 1 3 4
+    'n': '⠝', // 1 3 4 5
+    'o': '⠕', // 1 3 5
+    'p': '⠏', // 1 2 3 4
+    'q': '⠟', // 1 2 3 4 5
+    'r': '⠗', // 1 2 3 5
+    's': '⠎', // 2 3 4
+    't': '⠞', // 2 3 4 5
+    'u': '⠥', // 1 3 6
+    'v': '⠧', // 1 2 3 6
+    'w': '⠺', // 2 4 5 6
+    'x': '⠭', // 1 3 4 6
+    'y': '⠽', // 1 3 4 5 6
+    'z': '⠵', // 1 3 5 6
+    ' ': ' ',  // space
+    '.': '⠲',  // 2 5 6
+    ',': '⠂',  // 2
+    '?': '⠦',  // 2 3 6
+    '!': '⠖'   // 2 3 5
+  };
+    // Braille number system (Grade 1 English)
+  const NUMBER_SIGN = '⠼';
+  const CAPITAL_SIGN = '⠠'; // dot 6
+
+  const digitToBraille = {
+    '1': '⠁',
+    '2': '⠃',
+    '3': '⠉',
+    '4': '⠙',
+    '5': '⠑',
+    '6': '⠋',
+    '7': '⠛',
+    '8': '⠓',
+    '9': '⠊',
+    '0': '⠚'
+  };
+
+  const brailleLabels = {
+    'a': 'a, dots 1',
+    'b': 'b, dots 1 2',
+    'c': 'c, dots 1 4',
+    'd': 'd, dots 1 4 5',
+    'e': 'e, dots 1 5',
+    'f': 'f, dots 1 2 4',
+    'g': 'g, dots 1 2 4 5',
+    'h': 'h, dots 1 2 5',
+    'i': 'i, dots 2 4',
+    'j': 'j, dots 2 4 5',
+    'k': 'k, dots 1 3',
+    'l': 'l, dots 1 2 3',
+    'm': 'm, dots 1 3 4',
+    'n': 'n, dots 1 3 4 5',
+    'o': 'o, dots 1 3 5',
+    'p': 'p, dots 1 2 3 4',
+    'q': 'q, dots 1 2 3 4 5',
+    'r': 'r, dots 1 2 3 5',
+    's': 's, dots 2 3 4',
+    't': 't, dots 2 3 4 5',
+    'u': 'u, dots 1 3 6',
+    'v': 'v, dots 1 2 3 6',
+    'w': 'w, dots 2 4 5 6',
+    'x': 'x, dots 1 3 4 6',
+    'y': 'y, dots 1 3 4 5 6',
+    'z': 'z, dots 1 3 5 6',
+    ' ': 'space',
+    '.': 'period, dots 2 5 6',
+    ',': 'comma, dots 2',
+    '?': 'question mark, dots 2 3 6',
+    '!': 'exclamation mark, dots 2 3 5'
+  };
+    const digitLabels = {
+    '1': 'number 1',
+    '2': 'number 2',
+    '3': 'number 3',
+    '4': 'number 4',
+    '5': 'number 5',
+    '6': 'number 6',
+    '7': 'number 7',
+    '8': 'number 8',
+    '9': 'number 9',
+    '0': 'number 0'
+  };
+
+  const input = document.getElementById('sourceText');
+  const output = document.getElementById('brailleOutput');
+  const plain = document.getElementById('braillePlainText');
+// PREVENT NATIVE TEXT INSERTION INTO BRAILLE OUTPUT
+output.addEventListener('beforeinput', (e) => {
+  e.preventDefault();
+});
+// ALLOW KEYBOARD TYPING INTO BRAILLE CONSOLE (CONTROLLED)
+output.addEventListener('keydown', (e) => {
+  // Allow navigation keys
+  const allowedControlKeys = [
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Tab', 'Shift', 'Control', 'Alt', 'Meta'
+  ];
+  if (allowedControlKeys.includes(e.key)) return;
+
+  e.preventDefault();
+
+  // Handle backspace
+  if (e.key === 'Backspace') {
+    input.value = input.value.slice(0, -1);
+    translateToBraille(input.value);
+    return;
+  }
+
+  // Handle enter (newline)
+  if (e.key === 'Enter') {
+    input.value += '\n';
+    translateToBraille(input.value);
+    return;
+  }
+
+  // Handle printable characters
+  if (e.key.length === 1) {
+    input.value += e.key;
+    translateToBraille(input.value);
+  }
+});
+  function translateToBraille(text) {
+    // Build both DOM spans (for visual + screen reader) and plain text string.
+    output.innerHTML = '';
+    let plainResult = '';
+
+    if (!text.trim()) {
+      const p = document.createElement('p');
+      p.className = 'hint';
+      p.textContent = 'Your Braille translation will appear here as you type.';
+      output.appendChild(p);
+      plain.textContent = '';
+      return;
+    }
+
+    const lines = text.split(/\r?\n/);
+
+    lines.forEach((line, lineIndex) => {
+      let inNumberMode = false;
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'braille-line';
+
+      for (let i = 0; i < line.length; i++) {
+        const charOriginal = line[i];
+        const lower = charOriginal.toLowerCase();
+        const isLetter = /[a-z]/.test(lower);
+        const isUpper = isLetter && charOriginal !== lower;
+
+        let brailleChar;
+        let label;
+
+        // ===== NUMBER HANDLING =====
+        if (/[0-9]/.test(charOriginal)) {
+          if (!inNumberMode) {
+            // Insert number sign ⠼
+            const numSignSpan = document.createElement('span');
+            numSignSpan.className = 'braille-cell';
+            numSignSpan.textContent = NUMBER_SIGN;
+            numSignSpan.setAttribute('aria-label', 'number sign');
+            lineDiv.appendChild(numSignSpan);
+            plainResult += NUMBER_SIGN;
+            inNumberMode = true;
+          }
+
+          brailleChar = digitToBraille[charOriginal];
+          label = digitLabels[charOriginal];
+        } else {
+          inNumberMode = false;
+          brailleChar = brailleMap[lower];
+          label = brailleLabels[lower];
+        }
+
+        if (typeof brailleChar === 'undefined') {
+          // Fallback: keep the character as-is
+          brailleChar = charOriginal;
+          label = `character ${charOriginal}`;
+        }
+
+        // ===== CAPITAL LETTER HANDLING =====
+if (isUpper) {
+  // Insert capital sign BEFORE the letter
+  const capSpan = document.createElement('span');
+  capSpan.className = 'braille-cell';
+  capSpan.textContent = CAPITAL_SIGN;
+  capSpan.setAttribute('aria-label', 'capital sign');
+
+  lineDiv.appendChild(capSpan);
+  plainResult += CAPITAL_SIGN;
+
+  // Update label for the actual letter
+  label = `capital ${lower}, ${brailleLabels[lower] || 'letter'}`;
+}
+
+        const span = document.createElement('span');
+        span.className = 'braille-cell' + (lower === ' ' ? ' space' : '');
+        span.textContent = brailleChar;
+        span.setAttribute('aria-label', label);
+
+        lineDiv.appendChild(span);
+        plainResult += brailleChar;
+      }
+
+      output.appendChild(lineDiv);
+
+      if (lineIndex < lines.length - 1) {
+        plainResult += '\n';
+      }
+    });
+
+    plain.textContent = plainResult;
+  }
+
+  input.addEventListener('input', () => {
+    translateToBraille(input.value);
+  });
+
+  // Initial state
+  translateToBraille('');
+
+  // =============== ADDED: BUILD TOUCH LETTER KEYBOARD (A–Z, . ! ?, SPACE) ===============
+  const keyboardContainer = document.getElementById('brailleKeyboard');
+  const keyChars = 'abcdefghijklmnopqrstuvwxyz0123456789.!? ';
+
+  keyChars.split('').forEach(char => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'braille-key' + (char === ' ' ? ' space-key' : '');
+    btn.dataset.char = char;
+    btn.textContent =
+      char === ' '
+        ? 'Space'
+        : /[0-9]/.test(char)
+            ? char
+            : char.toUpperCase();
+    btn.setAttribute('tabindex', '-1'); // keep out of keyboard tab order
+    keyboardContainer.appendChild(btn);
+  });
+
+  // Use pointer events so it works for touch + mouse, but still only discoverable by touch
+  keyboardContainer.addEventListener('pointerdown', (event) => {
+    const target = event.target;
+    if (!target.classList.contains('braille-key')) return;
+    event.preventDefault();
+
+    const ch = target.dataset.char;
+    if (!ch) return;
+
+    // Append to the source text and re-translate
+    input.value += ch;
+    translateToBraille(input.value);
+  });
+  // ======================================================================
+// ====================== BRAILLE → ENGLISH SUPPORT =====================
+// ======================================================================
+
+// Build reverse braille lookup map
+const reverseBrailleMap = Object.fromEntries(
+  Object.entries(brailleMap).map(([k, v]) => [v, k])
+);
+
+// Convert braille unicode back to English text
+function translateFromBraille(brailleText) {
+  let english = '';
+
+  for (const ch of brailleText) {
+    if (ch === ' ') {
+      english += ' ';
+    } else {
+      english += reverseBrailleMap[ch] ?? ch;
+    }
+  }
+
+  return english;
+}
+
+// Listen for typing INSIDE the braille output box
+output.addEventListener('input', () => {
+
+  const typedBraille = output.textContent;
+
+  // Convert braille → English
+  const english = translateFromBraille(typedBraille);
+
+  // Put English back into the textarea
+  input.value = english;
+
+  // Re-render braille with clean cells + accessibility labels
+  translateToBraille(english);
+
+});
+// =================== TAB SWITCHING ===================
+const tabs = document.querySelectorAll('[role="tab"]');
+const panels = document.querySelectorAll('[role="tabpanel"]');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+    panels.forEach(p => p.setAttribute('aria-hidden', 'true'));
+
+    tab.setAttribute('aria-selected', 'true');
+    document
+      .getElementById(tab.getAttribute('aria-controls'))
+      .setAttribute('aria-hidden', 'false');
+  });
+});
+</script>
+</body>
+</html>
