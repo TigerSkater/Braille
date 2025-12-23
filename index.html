@@ -443,6 +443,7 @@
   };
     // Braille number system (Grade 1 English)
   const NUMBER_SIGN = '⠼';
+  const CAPITAL_SIGN = '⠠'; // dot 6
 
   const digitToBraille = {
     '1': '⠁',
@@ -598,11 +599,20 @@ output.addEventListener('keydown', (e) => {
           label = `character ${charOriginal}`;
         }
 
-        // Visually we use the same Braille cell for upper/lower,
-        // but we tell the screen reader it's "capital X".
-        if (isUpper) {
-          label = `capital ${charOriginal}, ${brailleLabels[lower] || 'letter'}`;
-        }
+        // ===== CAPITAL LETTER HANDLING =====
+if (isUpper) {
+  // Insert capital sign BEFORE the letter
+  const capSpan = document.createElement('span');
+  capSpan.className = 'braille-cell';
+  capSpan.textContent = CAPITAL_SIGN;
+  capSpan.setAttribute('aria-label', 'capital sign');
+
+  lineDiv.appendChild(capSpan);
+  plainResult += CAPITAL_SIGN;
+
+  // Update label for the actual letter
+  label = `capital ${lower}, ${brailleLabels[lower] || 'letter'}`;
+}
 
         const span = document.createElement('span');
         span.className = 'braille-cell' + (lower === ' ' ? ' space' : '');
