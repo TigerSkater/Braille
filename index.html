@@ -21,16 +21,17 @@
     }
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2937, #020617);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 2rem 1rem;
-    }
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #1f2937, #020617);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+}
+    
 
     main {
       width: 100%;
@@ -81,11 +82,14 @@
       margin-top: 1.5rem;
     }
 
-    @media (max-width: 800px) {
-      .grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
+ @media (max-width: 800px) {
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+}
 
     .card {
       background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%);
@@ -274,6 +278,38 @@
 .tab-panel[aria-hidden="false"] {
   display: block;
 }
+/* ===== TRANSLATOR LAYOUT FIX ===== */
+.translator-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Stack on small screens */
+@media (max-width: 800px) {
+  .translator-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Make keyboard wider */
+.braille-keyboard {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+@media (min-width: 900px) {
+  .braille-keyboard {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+    /* Let Translator tab span the full grid width */
+#panel-translator {
+  grid-column: 1 / -1;
+}
+/* Hide keyboard ONLY on Info tab */
+#panel-info .braille-keyboard {
+  display: none;
+}
   </style>
 </head>
 <body>
@@ -386,54 +422,58 @@
   role="tabpanel"
   aria-labelledby="tab-translator"
   aria-hidden="false">
-    <!-- INPUT -->
-    <section class="card" aria-label="Text input">
-      <label for="sourceText">Text to translate</label>
-      <p class="hint">
-        Supports basic Grade&nbsp;1 English (letters a–z, space, . , ? !). Case is announced to screen readers.
-      </p>
-      <textarea
-        id="sourceText"
-        name="sourceText"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="Type something like: Hello world!"
-      ></textarea>
-      <p class="footer-note">
-        <span class="badge">
-          <span class="badge-dot"></span>
-          Screen-reader friendly: each Braille cell has an ARIA label like “a, dots 1”.
-        </span>
-      </p>
-    </section>
+    
 
-    <!-- OUTPUT -->
-    <section class="card" aria-label="Braille output">
-      <div class="output-header">
-        <div class="output-title">Braille output</div>
-        <div class="output-subtitle">
-          Screen readers will read each cell by name and dot pattern.
-        </div>
+      <div class="translator-row">
+
+  <!-- INPUT -->
+  <section class="card" aria-label="Text input">
+    <label for="sourceText">Text to translate</label>
+    <p class="hint">
+      Supports basic Grade&nbsp;1 English (letters a–z, space, . , ? !). Case is announced to screen readers.
+    </p>
+    <textarea
+      id="sourceText"
+      name="sourceText"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Type something like: Hello world!"
+    ></textarea>
+    <p class="footer-note">
+      <span class="badge">
+        <span class="badge-dot"></span>
+        Screen-reader friendly: each Braille cell has an ARIA label like “a, dots 1”.
+      </span>
+    </p>
+  </section>
+
+  <!-- OUTPUT -->
+  <section class="card" aria-label="Braille output">
+    <div class="output-header">
+      <div class="output-title">Braille output</div>
+      <div class="output-subtitle">
+        Screen readers will read each cell by name and dot pattern.
       </div>
+    </div>
 
-      <!-- This live region updates as the user types -->
-      <div id="brailleOutput"
-       class="output-box"
-       aria-live="polite"
-       aria-label="Braille translation output"
-       contenteditable="true"
-       role="textbox"
-       spellcheck="false">
-        <p class="hint" style="margin:0;">
-          Your Braille translation will appear here as you type.
-        </p>
-      </div>
+    <div id="brailleOutput"
+      class="output-box"
+      aria-live="polite"
+      aria-label="Braille translation output"
+      contenteditable="true"
+      role="textbox"
+      spellcheck="false">
+      <p class="hint" style="margin:0;">
+        Your Braille translation will appear here as you type.
+      </p>
+    </div>
 
-      <!-- Optional plain-text representation for copying, hidden visually -->
-      <div id="braillePlainText" class="sr-only"
-           aria-hidden="false"
-           aria-label="Plain text representation of the Braille dots"></div>
-    </section> 
+    <div id="braillePlainText" class="sr-only"
+      aria-hidden="false"
+      aria-label="Plain text representation of the Braille dots"></div>
+  </section>
+
+</div>
   <!-- ============ ADDED: TOUCH-ONLY LETTER KEYBOARD (A–Z, . ! ?, SPACE) ============ -->
   <section class="card" aria-hidden="true" style="margin-top:1rem;">
     <p class="hint" style="margin-bottom:0.6rem;">
