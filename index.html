@@ -536,13 +536,6 @@
   style="margin-bottom:0.6rem;">
   Reveal ✨
 </button>
-
-<button
-  id="resetPersonality"
-  class="tab-button"
-  style="margin-left:0.4rem; opacity:0.7;">
-  Try another name
-</button>
     
 <button
   id="resetPersonality"
@@ -554,7 +547,13 @@
 <div id="personalityResult" class="hint">
   Your result will appear here.
 </div>
-
+    
+<div
+  id="personalityBrailleName"
+  class="hint"
+  style="margin-top:0.4rem; opacity:0.85;">
+</div>
+    
 <div
   id="personalityWhisper"
   class="hint"
@@ -1087,15 +1086,19 @@ resetBtn?.addEventListener('click', () => {
   personalityInput.value = '';
 
   // reset result
-  const box = document.getElementById('personalityResult');
-  box.classList.remove(
-    'revealed',
-    'personality-rare',
-    'personality-legendary',
-    'personality-oracle'
-  );
-  box.className = 'hint';
-  box.innerHTML = 'Your result will appear here.';
+ // reset result
+const box = document.getElementById('personalityResult');
+box.classList.remove(
+  'revealed',
+  'personality-rare',
+  'personality-legendary',
+  'personality-oracle'
+);
+box.className = 'hint';
+box.innerHTML = 'Your result will appear here.';
+
+// clear braille name
+document.getElementById('personalityBrailleName').innerHTML = '';
 
   // hide whisper
   const whisper = document.getElementById('personalityWhisper');
@@ -1105,6 +1108,35 @@ resetBtn?.addEventListener('click', () => {
   // refocus input
   personalityInput.focus();
 });
+
+function textToBrailleInline(text) {
+  let result = '';
+  let inNumberMode = false;
+
+  for (const char of text) {
+    const lower = char.toLowerCase();
+
+    if (/[0-9]/.test(char)) {
+      if (!inNumberMode) {
+        result += NUMBER_SIGN;
+        inNumberMode = true;
+      }
+      result += digitToBraille[char] || '';
+      continue;
+    }
+
+    inNumberMode = false;
+
+    if (/[a-z]/.test(lower)) {
+      if (char !== lower) {
+        result += CAPITAL_SIGN;
+      }
+      result += brailleMap[lower] || '';
+    }
+  }
+
+  return result;
+}
     
 function runPersonalityReveal(text) {
   if (!text || text.trim().length < 1) return;
@@ -1116,6 +1148,9 @@ function runPersonalityReveal(text) {
 
   personalityBox.className = 'hint'; // reset
   personalityBox.innerHTML = generatePersonalityText(result);
+  const brailleNameBox = document.getElementById('personalityBrailleName');
+brailleNameBox.innerHTML =
+  `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
   personalityBox.classList.add('revealed');
 
   // glow tier
