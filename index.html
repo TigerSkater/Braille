@@ -355,6 +355,34 @@
 .personality-oracle {
   animation: oracleGlow 2.4s ease-out;
 }
+/* ===== EASTER EGG: flying 67 ===== */
+@keyframes fly67 {
+  0% {
+    transform: translate(var(--x0), var(--y0)) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  100% {
+    transform: translate(var(--x1), var(--y1)) scale(1.2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.flying-67 {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.55);
+  animation: fly67 2.4s ease-out forwards;
+}
+    
 /* ===== PERSONALITY DISPLAY TWEAKS ===== */
 .personality-sofia ~ #personalityWhisper {
   color: #ec4899;
@@ -1239,7 +1267,34 @@ document.getElementById('personalityBrailleName').innerHTML = '';
   // refocus input
   personalityInput.focus();
 });
+function spawnFlying67(count = 14) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'flying-67';
+    el.textContent = '67';
 
+    // random start/end offsets
+    const x0 = (Math.random() * 80 - 40) + 'vw';
+    const y0 = (Math.random() * 40 - 20) + 'vh';
+    const x1 = (Math.random() * 160 - 80) + 'vw';
+    const y1 = (Math.random() * 120 - 60) + 'vh';
+
+    el.style.setProperty('--x0', x0);
+    el.style.setProperty('--y0', y0);
+    el.style.setProperty('--x1', x1);
+    el.style.setProperty('--y1', y1);
+
+    // stagger
+    el.style.animationDelay = (Math.random() * 0.35) + 's';
+
+    document.body.appendChild(el);
+
+    // cleanup after animation
+    setTimeout(() => el.remove(), 3200);
+  }
+}
+
+  
 function textToBrailleInline(text) {
   let result = '';
   let inNumberMode = false;
@@ -1270,16 +1325,55 @@ function textToBrailleInline(text) {
 }
     
 function runPersonalityReveal(text) {
+  function runPersonalityReveal(text) {
   if (!text || text.trim().length < 1) return;
+
+  const cleaned = text.trim().toLowerCase(); // <— ADDED
 
   const result = analyzeBraillePersonality(text);
   const personalityBox = document.getElementById('personalityResult');
 
   if (!result || !personalityBox) return;
   applyTierAccent(result.type);
-  
+
   personalityBox.className = 'hint'; // reset
-  personalityBox.innerHTML = generatePersonalityText(result);
+
+  // ===== EASTER EGG #1: Alicia Lu → "tellurium" first =====
+  const telluriumPrefix =
+    cleaned === 'alicia lu'
+      ? `<div style="margin-bottom:0.35rem;"><strong>tellurium</strong></div>`
+      : '';
+
+  // Normal personality (always happens)
+  personalityBox.innerHTML = telluriumPrefix + generatePersonalityText(result);
+
+  // ===== EASTER EGG #2: Shayla Bergen → flying 67 =====
+  if (cleaned === 'shayla bergen') {
+    spawnFlying67(18);
+  }
+
+  const brailleNameBox = document.getElementById('personalityBrailleName');
+  brailleNameBox.innerHTML =
+    `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
+
+  personalityBox.classList.add('revealed');
+
+  // glow tier (your existing code)
+  if (result.type === 'rare') {
+    personalityBox.classList.add('personality-rare');
+  }
+  if (result.type === 'legendary') {
+    personalityBox.classList.add('personality-legendary');
+  }
+  if (result.type === 'oracle') {
+    personalityBox.classList.add('personality-oracle');
+  }
+  if (result.type === 'sofia') {
+    personalityBox.classList.add('personality-sofia');
+  }
+
+  showWhisper(result.type);
+}
   const brailleNameBox = document.getElementById('personalityBrailleName');
 brailleNameBox.innerHTML =
   `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
