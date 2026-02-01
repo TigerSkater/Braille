@@ -1325,18 +1325,25 @@ function textToBrailleInline(text) {
 }
     
 function runPersonalityReveal(text) {
-  function runPersonalityReveal(text) {
   if (!text || text.trim().length < 1) return;
 
-  const cleaned = text.trim().toLowerCase(); // <— ADDED
+  const cleaned = text.trim().toLowerCase();
 
   const result = analyzeBraillePersonality(text);
   const personalityBox = document.getElementById('personalityResult');
-
   if (!result || !personalityBox) return;
+
   applyTierAccent(result.type);
 
-  personalityBox.className = 'hint'; // reset
+  // reset classes + state
+  personalityBox.className = 'hint';
+  personalityBox.classList.remove(
+    'revealed',
+    'personality-rare',
+    'personality-legendary',
+    'personality-oracle',
+    'personality-sofia'
+  );
 
   // ===== EASTER EGG #1: Alicia Lu → "tellurium" first =====
   const telluriumPrefix =
@@ -1352,46 +1359,20 @@ function runPersonalityReveal(text) {
     spawnFlying67(18);
   }
 
+  // Braille name line (always happens)
   const brailleNameBox = document.getElementById('personalityBrailleName');
-  brailleNameBox.innerHTML =
-    `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
+  if (brailleNameBox) {
+    brailleNameBox.innerHTML =
+      `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
+  }
 
+  // reveal + tier glow classes
   personalityBox.classList.add('revealed');
 
-  // glow tier (your existing code)
-  if (result.type === 'rare') {
-    personalityBox.classList.add('personality-rare');
-  }
-  if (result.type === 'legendary') {
-    personalityBox.classList.add('personality-legendary');
-  }
-  if (result.type === 'oracle') {
-    personalityBox.classList.add('personality-oracle');
-  }
-  if (result.type === 'sofia') {
-    personalityBox.classList.add('personality-sofia');
-  }
-
-  showWhisper(result.type);
-}
-  const brailleNameBox = document.getElementById('personalityBrailleName');
-brailleNameBox.innerHTML =
-  `<strong>Your name in Braille:</strong> ${textToBrailleInline(text)}`;
-  personalityBox.classList.add('revealed');
-
-  // glow tier
-  if (result.type === 'rare') {
-    personalityBox.classList.add('personality-rare');
-  }
-  if (result.type === 'legendary') {
-    personalityBox.classList.add('personality-legendary');
-  }
-  if (result.type === 'oracle') {
-    personalityBox.classList.add('personality-oracle');
-  }
-  if (result.type === 'sofia') {
-  personalityBox.classList.add('personality-sofia');
-  }
+  if (result.type === 'rare') personalityBox.classList.add('personality-rare');
+  if (result.type === 'legendary') personalityBox.classList.add('personality-legendary');
+  if (result.type === 'oracle') personalityBox.classList.add('personality-oracle');
+  if (result.type === 'sofia') personalityBox.classList.add('personality-sofia');
 
   showWhisper(result.type);
 }
