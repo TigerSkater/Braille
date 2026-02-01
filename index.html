@@ -1240,33 +1240,38 @@ const revealBtn = document.getElementById('revealPersonality');
 const resetBtn = document.getElementById('resetPersonality');
 
 resetBtn?.addEventListener('click', () => {
-  // clear input
-  personalityInput.value = '';
+  if (personalityInput) personalityInput.value = '';
 
-  // reset result
- // reset result
-const box = document.getElementById('personalityResult');
-box.classList.remove(
-  'revealed',
-  'personality-rare',
-  'personality-legendary',
-  'personality-oracle',
-  'personality-sofia'
-);
-box.className = 'hint';
-box.innerHTML = 'Your result will appear here.';
+  const box = document.getElementById('personalityResult');
+  if (box) {
+    box.className = 'hint';
+    box.classList.remove(
+      'revealed',
+      'personality-rare',
+      'personality-legendary',
+      'personality-oracle',
+      'personality-sofia'
+    );
+    box.innerHTML = 'Your result will appear here.';
+  }
 
-// clear braille name
-document.getElementById('personalityBrailleName').innerHTML = '';
+  // reset accent to default teal
+  document.documentElement.style.setProperty('--accent', '#2dd4bf');
+  document.documentElement.style.setProperty('--accent-soft', 'rgba(45, 212, 191, 0.16)');
 
-  // hide whisper
+  const nameBox = document.getElementById('personalityBrailleName');
+  if (nameBox) nameBox.innerHTML = '';
+
   const whisper = document.getElementById('personalityWhisper');
-  whisper.style.opacity = 0;
-  whisper.setAttribute('aria-hidden', 'true');
+  if (whisper) {
+    whisper.textContent = '';
+    whisper.style.opacity = 0;
+    whisper.setAttribute('aria-hidden', 'true');
+  }
 
-  // refocus input
-  personalityInput.focus();
+  personalityInput?.focus();
 });
+
 function spawnFlying67(count = 14) {
   for (let i = 0; i < count; i++) {
     const el = document.createElement('div');
