@@ -1053,41 +1053,46 @@ function hashText(str) {
 function analyzeBraillePersonality(text) {
   if (!text || text.trim().length < 3) return null;
 
-  const lower = text.toLowerCase();
+  const trimmed = text.trim();
+  const lower = trimmed.toLowerCase();
+
   // 🌟 CREATOR SIGNATURE
-  if (text.trim().toLowerCase() === 'sofia tang') {
+  if (lower === 'sofia tang') {
     return { type: 'sofia', variant: 0 };
   }
-  
-  // 🕶️ EASTER EGG (ABSOLUTE 2nd PRIORITY)
+
+  // 🕶️ ORACLE
   if (lower.includes('braille')) {
     return { type: 'oracle', variant: 0 };
   }
 
-  const length = text.length;
-  const caps = (text.match(/[A-Z]/g) || []).length;
-  const punctuation = (text.match(/[.!?]/g) || []).length;
-  const numbers = (text.match(/[0-9]/g) || []).length;
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  const length = trimmed.length;
+  const hasCaps = /[A-Z]/.test(trimmed);
+  const hasPunct = /[.!?]/.test(trimmed);
 
-  const hash = hashText(text);
-  const variant = hash % 6; // cycles descriptions
+  const hash = hashText(trimmed);
+  const variant = hash % 6;
 
-  // 🟡 LEGENDARY (hard to reach)
-  if (length > 200 && punctuation > 5 && caps > 5) {
+  // initials like "S T" or "S.T." or "S. T."
+  const initialsLike = /^[A-Za-z]\.?\s*[A-Za-z]\.?$/.test(trimmed);
+
+  // 🟡 LEGENDARY: first + last OR initials
+  if (words.length >= 2 || initialsLike) {
     return { type: 'legendary', variant };
   }
 
-  // 🟣 RARE
-  if (length > 120 && punctuation >= 3) {
+  // 🟣 RARE: longer single name or punctuation
+  if (length >= 7 || hasPunct) {
     return { type: 'rare', variant };
   }
 
-  // 🔵 UNCOMMON
-  if (numbers >= 3 || caps > length * 0.25) {
+  // 🔵 UNCOMMON: medium length or any caps
+  if (length >= 5 || hasCaps) {
     return { type: 'uncommon', variant };
   }
 
-  // 🟢 COMMON
+  // 🟢 COMMON: short, lowercase, single word
   return { type: 'common', variant };
 }
 
