@@ -1419,8 +1419,12 @@ function runPersonalityReveal(text) {
   personalityBox.innerHTML = telluriumPrefix + generatePersonalityText(result);
 
   // ===== EASTER EGG #2: Shayla Bergen → flying 67 =====
-  if (cleaned === 'shayla bergen') {
-    spawnFlying67(18);
+  if (
+  cleaned === 'shayla bergen' ||
+  cleaned === 'shayla rae' ||
+  cleaned === 'shayla rae bergen'
+  ) {
+  spawnFlying67(30);
   }
 
   // Braille name line (always happens)
