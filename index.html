@@ -1061,10 +1061,10 @@ function analyzeBraillePersonality(text) {
     return { type: 'sofia', variant: 0 };
   }
 
-  // 😐 BEN QU OVERRIDE (force common)
-  if (lower === 'ben qu') {
-    return { type: 'common', variant: 6 };
-  }
+  // 😐 BEN QU / BENJAMIN QU OVERRIDE
+  if (lower === 'ben qu' || lower === 'benjamin qu') {
+  return { type: 'common', variant: 6 };
+}
 
   // ♡ SEAN MAGEE OVERRIDE (force special vibe)
   if (lower === 'sean magee') {
@@ -1233,7 +1233,11 @@ function generatePersonalityText(result) {
   ],
 
   sean: [
-    `♡ <strong>Sean Magee</strong><br>♡`,
+  `♡ <strong>Sean Magee</strong> ♡<br>
+   Your name has an oddly memorable rhythm to it.<br>
+   It tends to stand out in a way that feels effortless.<br>
+   <em>As you might say:</em> just keep scrolling.<br>
+   <em>Vibe:</em> quietly iconic.`
   ],
 };
     
