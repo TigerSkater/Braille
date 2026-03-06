@@ -1056,9 +1056,19 @@ function analyzeBraillePersonality(text) {
   const trimmed = text.trim();
   const lower = trimmed.toLowerCase();
 
-  // 🌟 CREATOR SIGNATURE
+    // 🌟 CREATOR SIGNATURE
   if (lower === 'sofia tang') {
     return { type: 'sofia', variant: 0 };
+  }
+
+  // 😐 BEN QU OVERRIDE (force common)
+  if (lower === 'ben qu') {
+    return { type: 'common', variant: 6 };
+  }
+
+  // ♡ SEAN MAGEE OVERRIDE (force special vibe)
+  if (lower === 'sean magee') {
+    return { type: 'sean', variant: 0 };
   }
 
   // 🕶️ ORACLE
@@ -1100,123 +1110,133 @@ function generatePersonalityText(result) {
   const { type, variant } = result;
 
   const personalities = {
-    common: [
-  `🟢 <strong>The Grounded Translator</strong><br>
-   You value clarity and calm. Your Braille is steady, readable, and trustworthy.<br>
-   <em>Vibe:</em> quiet reliability.`,
+  common: [
+    `🟢 <strong>The Grounded Translator</strong><br>
+     You value clarity and calm. Your Braille is steady, readable, and trustworthy.<br>
+     <em>Vibe:</em> quiet reliability.`,
 
-  `🟢 <strong>The Consistent Reader</strong><br>
-   You favor balance and predictability. Your dots feel intentional and stable.<br>
-   <em>Vibe:</em> dependable presence.`,
+    `🟢 <strong>The Consistent Reader</strong><br>
+     You favor balance and predictability. Your dots feel intentional and stable.<br>
+     <em>Vibe:</em> dependable presence.`,
 
-  `🟢 <strong>The Careful Communicator</strong><br>
-   You think before you type. Nothing feels rushed or careless in your text.<br>
-   <em>Vibe:</em> thoughtful calm.`,
+    `🟢 <strong>The Careful Communicator</strong><br>
+     You think before you type. Nothing feels rushed or careless in your text.<br>
+     <em>Vibe:</em> thoughtful calm.`,
 
-  `🟢 <strong>The Minimalist</strong><br>
-   You don’t overcomplicate language. Your Braille is clean and efficient.<br>
-   <em>Vibe:</em> clarity-first energy.`,
+    `🟢 <strong>The Minimalist</strong><br>
+     You don’t overcomplicate language. Your Braille is clean and efficient.<br>
+     <em>Vibe:</em> clarity-first energy.`,
 
-  `🟢 <strong>The Listener</strong><br>
-   You translate with empathy. Your words feel chosen for someone, not everyone.<br>
-   <em>Vibe:</em> grounded understanding.`,
+    `🟢 <strong>The Listener</strong><br>
+     You translate with empathy. Your words feel chosen for someone, not everyone.<br>
+     <em>Vibe:</em> grounded understanding.`,
 
-  `🟢 <strong>The Steady Hand</strong><br>
-   You bring order to text. Even complex ideas feel approachable.<br>
-   <em>Vibe:</em> quiet competence.`
-],
+    `🟢 <strong>The Steady Hand</strong><br>
+     You bring order to text. Even complex ideas feel approachable.<br>
+     <em>Vibe:</em> quiet competence.`,
 
-    uncommon: [
-  `🔵 <strong>The Pattern Seer</strong><br>
-   You notice structure others miss. Your Braille reflects logic and order.<br>
-   <em>Vibe:</em> analytical calm.`,
+    `🟢 <strong>...Common.</strong><br>
+     why are you here. bye.<br>
+     <em>(all jokes. sorry dude.)</em>`,
+  ],
 
-  `🔵 <strong>The Intentional Typist</strong><br>
-   Every character has purpose. Your writing feels pre-edited.<br>
-   <em>Vibe:</em> precision mindset.`,
+  uncommon: [
+    `🔵 <strong>The Pattern Seer</strong><br>
+     You notice structure others miss. Your Braille reflects logic and order.<br>
+     <em>Vibe:</em> analytical calm.`,
 
-  `🔵 <strong>The Strategist</strong><br>
-   You plan your language like moves on a board.<br>
-   <em>Vibe:</em> controlled foresight.`,
+    `🔵 <strong>The Intentional Typist</strong><br>
+     Every character has purpose. Your writing feels pre-edited.<br>
+     <em>Vibe:</em> precision mindset.`,
 
-  `🔵 <strong>The System Thinker</strong><br>
-   You enjoy consistency and internal rules in language.<br>
-   <em>Vibe:</em> quiet optimization.`,
+    `🔵 <strong>The Strategist</strong><br>
+     You plan your language like moves on a board.<br>
+     <em>Vibe:</em> controlled foresight.`,
 
-  `🔵 <strong>The Organizer</strong><br>
-   Your text feels sorted and intentional, even when casual.<br>
-   <em>Vibe:</em> structured clarity.`,
+    `🔵 <strong>The System Thinker</strong><br>
+     You enjoy consistency and internal rules in language.<br>
+     <em>Vibe:</em> quiet optimization.`,
 
-  `🔵 <strong>The Precision Reader</strong><br>
-   You value accuracy over speed. Your dots rarely feel accidental.<br>
-   <em>Vibe:</em> thoughtful exactness.`
-],
-    rare: [
-  `🟣 <strong>The Expressive Architect</strong><br>
-   You balance emotion and structure seamlessly.<br>
-   <em>Vibe:</em> creative discipline.`,
+    `🔵 <strong>The Organizer</strong><br>
+     Your text feels sorted and intentional, even when casual.<br>
+     <em>Vibe:</em> structured clarity.`,
 
-  `🟣 <strong>The Storyweaver</strong><br>
-   Your Braille feels narrative and alive.<br>
-   <em>Vibe:</em> late-night creator.`,
+    `🔵 <strong>The Precision Reader</strong><br>
+     You value accuracy over speed. Your dots rarely feel accidental.<br>
+     <em>Vibe:</em> thoughtful exactness.`,
+  ],
 
-  `🟣 <strong>The Signal Booster</strong><br>
-   Your words carry weight. People feel your intent.<br>
-   <em>Vibe:</em> expressive impact.`,
+  rare: [
+    `🟣 <strong>The Expressive Architect</strong><br>
+     You balance emotion and structure seamlessly.<br>
+     <em>Vibe:</em> creative discipline.`,
 
-  `🟣 <strong>The Aesthetic Translator</strong><br>
-   You care how language feels, not just what it says.<br>
-   <em>Vibe:</em> intentional beauty.`,
+    `🟣 <strong>The Storyweaver</strong><br>
+     Your Braille feels narrative and alive.<br>
+     <em>Vibe:</em> late-night creator.`,
 
-  `🟣 <strong>The Emotional Cartographer</strong><br>
-   You map feeling through dots and spacing.<br>
-   <em>Vibe:</em> subtle intensity.`,
+    `🟣 <strong>The Signal Booster</strong><br>
+     Your words carry weight. People feel your intent.<br>
+     <em>Vibe:</em> expressive impact.`,
 
-  `🟣 <strong>The Creative Analyst</strong><br>
-   You mix logic with flair effortlessly.<br>
-   <em>Vibe:</em> controlled creativity.`
-],
+    `🟣 <strong>The Aesthetic Translator</strong><br>
+     You care how language feels, not just what it says.<br>
+     <em>Vibe:</em> intentional beauty.`,
 
-legendary: [
-  `🟡 <strong>The Braille Virtuoso</strong><br>
-   You move fluently between precision and expression.<br>
-   <em>Vibe:</em> effortless mastery.`,
+    `🟣 <strong>The Emotional Cartographer</strong><br>
+     You map feeling through dots and spacing.<br>
+     <em>Vibe:</em> subtle intensity.`,
 
-  `🟡 <strong>The Dot Alchemist</strong><br>
-   You transform raw text into experience.<br>
-   <em>Vibe:</em> art meets logic.`,
+    `🟣 <strong>The Creative Analyst</strong><br>
+     You mix logic with flair effortlessly.<br>
+     <em>Vibe:</em> controlled creativity.`,
+  ],
 
-  `🟡 <strong>The Luminary</strong><br>
-   Others unconsciously follow your structure.<br>
-   <em>Vibe:</em> quiet authority.`,
+  legendary: [
+    `🟡 <strong>The Braille Virtuoso</strong><br>
+     You move fluently between precision and expression.<br>
+     <em>Vibe:</em> effortless mastery.`,
 
-  `🟡 <strong>The Pattern Leader</strong><br>
-   Your writing sets standards without trying.<br>
-   <em>Vibe:</em> influential calm.`,
+    `🟡 <strong>The Dot Alchemist</strong><br>
+     You transform raw text into experience.<br>
+     <em>Vibe:</em> art meets logic.`,
 
-  `🟡 <strong>The Braille Conductor</strong><br>
-   You orchestrate language with precision and flow.<br>
-   <em>Vibe:</em> composed brilliance.`,
+    `🟡 <strong>The Luminary</strong><br>
+     Others unconsciously follow your structure.<br>
+     <em>Vibe:</em> quiet authority.`,
 
-  `🟡 <strong>The Master Translator</strong><br>
-   Your Braille feels inevitable, like it couldn’t be otherwise.<br>
-   <em>Vibe:</em> refined excellence.`
-],
+    `🟡 <strong>The Pattern Leader</strong><br>
+     Your writing sets standards without trying.<br>
+     <em>Vibe:</em> influential calm.`,
 
-    oracle: [
-  `🕶️ <strong>The Braille Oracle</strong><br>
-   You typed the name of the system itself.<br>
-   The dots recognized you.<br><br>
-   <em>“Not all readers are meant to translate.”</em>`
-],
+    `🟡 <strong>The Braille Conductor</strong><br>
+     You orchestrate language with precision and flow.<br>
+     <em>Vibe:</em> composed brilliance.`,
 
-    sofia: [
-  `✨ <strong>The Architect of the System</strong><br>
-   You built a space where Braille is easy to read and use.<br>
-   Accessibility here is intentional, expressive, and human.<br><br>
-   <em>Vibe:</em> thoughtful creator energy.`
-]
-  };
+    `🟡 <strong>The Master Translator</strong><br>
+     Your Braille feels inevitable, like it couldn’t be otherwise.<br>
+     <em>Vibe:</em> refined excellence.`,
+  ],
+
+  oracle: [
+    `🕶️ <strong>The Braille Oracle</strong><br>
+     You typed the name of the system itself.<br>
+     The dots recognized you.<br><br>
+     <em>“Not all readers are meant to translate.”</em>`,
+  ],
+
+  sofia: [
+    `✨ <strong>The Architect of the System</strong><br>
+     You built a space where Braille is easy to read and use.<br>
+     Accessibility here is intentional, expressive, and human.<br><br>
+     <em>Vibe:</em> thoughtful creator energy.`,
+  ],
+
+  sean: [
+    `♡ <strong>Sean Magee</strong><br>♡`,
+  ],
+};
+    
 
   return personalities[type][variant] || personalities.common[0];
 }
